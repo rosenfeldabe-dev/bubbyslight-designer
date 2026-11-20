@@ -418,12 +418,14 @@
     }));
     return (fontCSS = parts.join(''));
   }
-  async function renderPNG(width = 2400) {
+  const SHEET_W = 396, SHEET_H = 398.16; // points, actual print sheet size (5.5 x 5.53 in)
+  async function renderCanvas(width) {
+    const height = Math.round(width * SHEET_H / SHEET_W);
     const svg = $('#kit').cloneNode(true);
     svg.setAttribute('xmlns', NS);
     svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
     svg.setAttribute('width', width);
-    svg.setAttribute('height', Math.round(width * 398.16 / 396));
+    svg.setAttribute('height', height);
     const style = document.createElementNS(NS, 'style');
     style.textContent = await embeddedFonts();
     svg.insertBefore(style, svg.firstChild);
@@ -432,22 +434,41 @@
     try {
       const img = await loadImage(url);
       const c = document.createElement('canvas');
-      c.width = width; c.height = Math.round(width * 398.16 / 396);
-      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
-      x.drawImage(img, 0, 0, c.width, c.height);
-      return c.toDataURL('image/png');
+      c.width = width; c.height = height;
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, width, height);
+      x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+      x.drawImage(img, 0, 0, width, height);
+      return c;
     } finally { URL.revokeObjectURL(url); }
   }
-  async function download(name) {
+  async function renderPNG(width = 2400) { return (await renderCanvas(width)).toDataURL('image/png'); }
+  let jsPDFReady = null;
+  function loadJsPDF() {
+    if (window.jspdf) return Promise.resolve(window.jspdf);
+    return jsPDFReady || (jsPDFReady = new Promise((res, rej) => {
+      const s = document.createElement('script'); s.src = 'assets/jspdf.umd.min.js';
+      s.onload = () => res(window.jspdf); s.onerror = rej; document.head.appendChild(s);
+    }));
+  }
+  const PRINT_DPI = 600;
+  async function renderPrintPDF() {
+    const [{ jsPDF }, canvas] = await Promise.all([loadJsPDF(), renderCanvas(Math.round(SHEET_W / 72 * PRINT_DPI))]);
+    const pdf = new jsPDF({ unit: 'pt', format: [SHEET_W, SHEET_H], orientation: 'portrait', compress: true });
+    pdf.setProperties({ title: "Bubby's Light custom candle kit print file", subject: `Print sheet 5.5 x 5.53 in at ${PRINT_DPI} dpi`, creator: "Bubby's Light Kit Designer" });
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, SHEET_W, SHEET_H, undefined, 'NONE');
+    return pdf;
+  }
+  function stamp() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+  async function download(base) {
     const btns = [$('#dlProof'), $('#doneDl')];
-    btns.forEach(b => { b.disabled = true; b.dataset.t = b.textContent; b.textContent = 'Preparing file'; });
+    btns.forEach(b => { b.disabled = true; b.dataset.t = b.textContent; b.textContent = 'Preparing print file'; });
     try {
-      const data = await renderPNG(2400);
-      const a = document.createElement('a'); a.href = data; a.download = name || 'bubbys-light-kit-design.png';
-      document.body.appendChild(a); a.click(); a.remove();
-    } catch (err) { console.error(err); alert('Sorry, the design file could not be created in this browser.'); }
+      const pdf = await renderPrintPDF();
+      pdf.save(`${base || 'bubbys-light-kit-print-file'}-${stamp()}.pdf`);
+    } catch (err) { console.error(err); alert('Sorry, the print file could not be created in this browser.'); }
     finally { btns.forEach(b => { b.disabled = false; b.textContent = b.dataset.t; }); }
   }
+  window.blRenderPrintPDF = renderPrintPDF;
 
   /* ---------- order ---------- */
   function buildQty() {
@@ -525,7 +546,7 @@
     $('#done').hidden = false; $('#doneClose').focus();
   }
   $('#doneClose').addEventListener('click', () => { $('#done').hidden = true; });
-  $('#doneDl').addEventListener('click', () => download(`${$('#doneRef').textContent}-design.png`));
+  $('#doneDl').addEventListener('click', () => download(`${$('#doneRef').textContent}-print-file`));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#done').hidden = true; });
 
   /* ---------- gallery ---------- */
