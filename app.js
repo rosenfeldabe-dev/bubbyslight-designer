@@ -482,7 +482,7 @@
           const r = await fetch(ORDER_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...order, proofPng: proof, logoData: state.logo }) });
           if (!r.ok) throw new Error('Order endpoint returned ' + r.status);
         } else {
-          try { const all = JSON.parse(localStorage.getItem('bl_orders') || '[]'); all.push(order); localStorage.setItem('bl_orders', JSON.stringify(all)); } catch (_) {}
+          (window.blOrders = window.blOrders || []).push(order);
           window.lastOrder = order;
         }
         showDone(order, proof);
