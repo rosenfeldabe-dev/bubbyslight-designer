@@ -99,6 +99,24 @@
     const frag = document.createDocumentFragment();
     Array.from(doc.documentElement.childNodes).forEach(n => frag.appendChild(document.importNode(n, true)));
     art.appendChild(frag);
+    keepOriginalColors(art, ['#source-39']); // silver candlesticks and flames stay true to life
+  }
+  // Re-draw selected artwork layers above the tinted art without the color filter,
+  // rebuilding each layer's ancestor chain so clips, masks and transforms stay identical.
+  function keepOriginalColors(art, refs) {
+    const fixed = document.createElementNS(NS, 'g');
+    fixed.setAttribute('id', 'kitFixed');
+    fixed.setAttribute('filter', 'url(#candleTone)');
+    art.querySelectorAll('use').forEach(u => {
+      const href = u.getAttribute('href') || u.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+      if (!refs.includes(href)) return;
+      const chain = [];
+      for (let n = u.parentNode; n && n !== art; n = n.parentNode) chain.unshift(n);
+      let parent = fixed;
+      chain.forEach(n => { const c = n.cloneNode(false); c.removeAttribute('id'); parent.appendChild(c); parent = c; });
+      parent.appendChild(u.cloneNode(true));
+    });
+    art.parentNode.insertBefore(fixed, art.nextSibling);
   }
 
   /* ---------- text fitting ---------- */
@@ -150,6 +168,8 @@
   function draw() {
     $('#toneHue').setAttribute('values', rotation().toFixed(1));
     $('#toneSat').setAttribute('values', state.sat.toFixed(2));
+    const off = Math.min(1, Math.abs(((rotation() + 180) % 360) - 180) / 40);
+    $('#candleSat').setAttribute('values', (1 - 0.6 * off).toFixed(2));
 
     // wheel
     const bg = hex(toned(BASE_BG));
