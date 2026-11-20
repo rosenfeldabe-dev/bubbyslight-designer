@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Your Shabbos Candle Kit | Bubby's Light at Merkos302</title>
+<meta name="description" content="Design custom Bubby's Light Shabbos candle kits for your Chabad house or school. Pick your colors, upload your logo, add a dedication and request your order.">
+<link rel="stylesheet" href="fonts-local.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <div class="brand"><span class="brand-m">MERKOS302</span><span class="brand-dot" aria-hidden="true"></span><span class="brand-j">JUDAICA.COM</span></div>
+    <a class="back" href="https://merkos302.judaica.com/pages/otzar-offers">All Offers</a>
+  </div>
+</header>
+
+<main>
+  <section class="intro wrap">
+    <p class="bsd" lang="he" dir="rtl">ב״ה</p>
+    <p class="eyebrow"><span>For Shluchim</span><span class="amp">&amp;</span><span>Mechanchim</span></p>
+    <h1>Design your own <em>Shabbos candle kits</em></h1>
+    <p class="lede">Bubby's Light kits arrive ready packed with 2 tealights. Choose your colors, add your logo and dedication, and you will receive a proof to approve before anything prints.</p>
+    <div class="stats">
+      <div><strong>160,000+</strong><span>kits distributed</span></div>
+      <div><strong>2</strong><span>tealights in every kit</span></div>
+      <div><strong>Proof first</strong><span>nothing prints until you approve</span></div>
+    </div>
+  </section>
+
+  <section class="studio wrap" id="studio" aria-label="Kit designer">
+    <div class="stage">
+      <div class="stage-card">
+        <div class="stage-head">
+          <div class="seg" role="tablist" aria-label="Preview mode">
+            <button role="tab" aria-selected="true" data-view="box">Box view</button>
+            <button role="tab" aria-selected="false" data-view="flat">Print layout</button>
+          </div>
+          <button class="ghost" id="spinBtn" type="button" aria-label="Turn the box">Turn box</button>
+        </div>
+
+        <div class="viewport" id="viewport">
+          <div class="scene" id="scene">
+            <div class="box" id="box">
+              <div class="face f-front"><svg viewBox="52.3 82.7 124.3 232.1" preserveAspectRatio="none"><use href="#kitComposite"/></svg></div>
+              <div class="face f-right"><svg viewBox="176.6 82.7 42.4 232.1" preserveAspectRatio="none"><use href="#kitComposite"/></svg></div>
+              <div class="face f-back"><svg viewBox="219 82.7 124.3 232.1" preserveAspectRatio="none"><use href="#kitComposite"/></svg></div>
+              <div class="face f-left"><svg viewBox="9.8 82.7 42.4 232.1" preserveAspectRatio="none"><use href="#kitComposite"/></svg></div>
+              <div class="face f-top"><svg viewBox="52.3 40.3 124.3 42.4" preserveAspectRatio="none"><use href="#kitComposite"/></svg></div>
+            </div>
+            <div class="shadow" aria-hidden="true"></div>
+          </div>
+          <div class="flat" id="flat" hidden>
+            <svg id="kit" viewBox="0 0 396 398.16" role="img" aria-label="Flat print layout of your candle kit">
+              <defs>
+                <filter id="kitTone" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
+                  <feColorMatrix id="toneHue" type="hueRotate" values="0"/>
+                  <feColorMatrix id="toneSat" type="saturate" values="1"/>
+                </filter>
+                <filter id="logoMono" color-interpolation-filters="sRGB">
+                  <feFlood id="logoMonoColor" flood-color="#92346A"/>
+                  <feComposite in2="SourceAlpha" operator="in"/>
+                </filter>
+                <clipPath id="logoClip"><rect id="logoClipRect" x="78.3" y="295.6" width="71.9" height="16.7"/></clipPath>
+              </defs>
+              <g id="kitComposite">
+                <g id="kitArt" filter="url(#kitTone)"></g>
+                <g id="custom">
+                  <text id="tMessage" x="114.4" y="64" text-anchor="middle"></text>
+                  <text id="tMessage2" x="114.4" y="72" text-anchor="middle"></text>
+                  <text id="tDed1" x="114.4" y="275" text-anchor="middle"></text>
+                  <text id="tDed2" x="114.4" y="285" text-anchor="middle"></text>
+                  <g clip-path="url(#logoClip)"><image id="logoImg" x="78.3" y="295.6" width="71.9" height="16.7" preserveAspectRatio="xMidYMid meet"/></g>
+                </g>
+              </g>
+            </svg>
+          </div>
+          <div class="loading" id="loading"><span></span>Loading your kit</div>
+        </div>
+        <p class="stage-note" id="stageNote">Drag to turn the box. The print layout shows every panel flat, as Bubby's Light prints it.</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <ol class="steps">
+        <li class="step" id="step-color">
+          <h2><span class="num">1</span>Pick your colors</h2>
+          <div class="color-row">
+            <div class="wheel" id="wheel" role="slider" tabindex="0" aria-label="Kit color" aria-valuemin="0" aria-valuemax="360" aria-valuenow="325">
+              <div class="wheel-ring"></div>
+              <div class="wheel-core"><span id="wheelSwatch"></span></div>
+              <div class="wheel-knob" id="wheelKnob"></div>
+            </div>
+            <div class="color-side">
+              <p class="hint">Drag around the wheel. The watercolor, florals and headline shift together so the kit stays in harmony.</p>
+              <div class="presets" id="presets"></div>
+              <label class="range"><span>Color strength</span><input type="range" id="sat" min="0.15" max="1.6" step="0.05" value="1"></label>
+            </div>
+          </div>
+        </li>
+
+        <li class="step" id="step-logo">
+          <h2><span class="num">2</span>Add your logo</h2>
+          <label class="drop" id="drop">
+            <input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp">
+            <span class="drop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></span>
+            <span class="drop-text"><strong>Upload your logo</strong><small>PNG, SVG or JPG. A transparent PNG or SVG prints best.</small></span>
+          </label>
+          <div class="logo-tools" id="logoTools" hidden>
+            <div class="logo-file"><img id="logoThumb" alt="Your uploaded logo"><span id="logoName"></span><button type="button" class="link" id="logoRemove">Remove</button></div>
+            <p class="warn" id="logoWarn" hidden></p>
+            <div class="opt-row">
+              <span class="opt-label">Logo colors</span>
+              <div class="seg small" id="logoColorSeg">
+                <button type="button" aria-pressed="true" data-v="original">Original</button>
+                <button type="button" aria-pressed="false" data-v="mono">Match kit</button>
+              </div>
+            </div>
+            <label class="check"><input type="checkbox" id="knockWhite"> Remove white background</label>
+            <label class="range"><span>Logo size</span><input type="range" id="logoScale" min="0.5" max="1" step="0.02" value="1"></label>
+          </div>
+          <div class="opt-row layout-row">
+            <span class="opt-label">Front layout</span>
+            <div class="seg small" id="layoutSeg">
+              <button type="button" aria-pressed="true" data-v="both">Dedication and logo</button>
+              <button type="button" aria-pressed="false" data-v="logo">Large logo</button>
+              <button type="button" aria-pressed="false" data-v="ded">Dedication only</button>
+            </div>
+          </div>
+        </li>
+
+        <li class="step" id="step-words">
+          <h2><span class="num">3</span>Add your words</h2>
+          <div class="field" id="dedField">
+            <label for="ded1">Dedication, front of box</label>
+            <input id="ded1" maxlength="48" placeholder="In loving memory of Mrs. Rochel Duchman">
+            <input id="ded2" maxlength="48" placeholder="Second line, optional">
+            <small>Hebrew is welcome. It switches to a Hebrew typeface automatically.</small>
+          </div>
+          <div class="field">
+            <label for="msg1">Message, top flap</label>
+            <input id="msg1" maxlength="40" placeholder="Chabad of Your City">
+            <input id="msg2" maxlength="40" placeholder="Second line, optional">
+          </div>
+          <div class="opt-row">
+            <span class="opt-label">Lettering</span>
+            <div class="seg small" id="fontSeg">
+              <button type="button" aria-pressed="true" data-v="lora-i">Classic italic</button>
+              <button type="button" aria-pressed="false" data-v="lora">Classic</button>
+              <button type="button" aria-pressed="false" data-v="frank">Traditional</button>
+            </div>
+          </div>
+          <div class="opt-row">
+            <span class="opt-label">Text color</span>
+            <div class="inkset" id="inkSet"></div>
+          </div>
+        </li>
+
+        <li class="step" id="step-order">
+          <h2><span class="num">4</span>Request your order</h2>
+          <form id="orderForm" novalidate>
+            <div class="qty">
+              <span class="opt-label">How many kits?</span>
+              <div class="qty-grid" id="qtyGrid"></div>
+              <input id="qtyOther" type="number" min="100" step="50" placeholder="Enter a quantity" hidden>
+            </div>
+            <p class="price-note">Pricing is confirmed with your proof. No payment is taken today.</p>
+            <div class="grid2">
+              <div class="field"><label for="org">Chabad house or school</label><input id="org" required autocomplete="organization"></div>
+              <div class="field"><label for="name">Your name</label><input id="name" required autocomplete="name"></div>
+              <div class="field"><label for="email">Email</label><input id="email" type="email" required autocomplete="email"></div>
+              <div class="field"><label for="phone">Phone</label><input id="phone" type="tel" autocomplete="tel"></div>
+            </div>
+            <div class="field"><label for="addr">Shipping address</label><textarea id="addr" rows="2" required autocomplete="street-address"></textarea></div>
+            <div class="grid2">
+              <div class="field"><label for="needBy">Needed by</label><input id="needBy" type="date"></div>
+              <div class="field"><label for="notes">Notes for the designer</label><input id="notes" placeholder="Anything we should know"></div>
+            </div>
+            <label class="check approve"><input type="checkbox" id="approve" required> I understand Bubby's Light will email me a final proof, and printing starts only after I approve it.</label>
+            <p class="form-err" id="formErr" role="alert" hidden></p>
+            <div class="actions">
+              <button class="primary" type="submit">Send my order request</button>
+              <button class="ghost" type="button" id="dlProof">Download my design</button>
+            </div>
+          </form>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="how wrap" aria-labelledby="howTitle">
+    <h2 id="howTitle">How it works</h2>
+    <ol class="how-grid">
+      <li><span>1</span><h3>Design it here</h3><p>Pick your colors, upload your logo and write your dedication.</p></li>
+      <li><span>2</span><h3>Get your proof</h3><p>Bubby's Light refines the layout and emails you a print proof.</p></li>
+      <li><span>3</span><h3>Approve and pay</h3><p>Confirm the proof and your final price. Then printing begins.</p></li>
+      <li><span>4</span><h3>Kits arrive packed</h3><p>Every kit comes ready with 2 tealights, ready for mivtzoim.</p></li>
+    </ol>
+  </section>
+
+  <section class="gallery wrap" aria-labelledby="galTitle">
+    <div class="gal-head">
+      <h2 id="galTitle">Kits Bubby's Light has made</h2>
+      <p>Custom kits produced together with Chabad houses, schools and campaigns.</p>
+    </div>
+    <div class="gal-track" id="galTrack"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p>Kits designed and produced by <strong>Bubby's Light</strong>, honoring the legacy of Bubby Duchman OB"M.</p>
+    <p>Questions? <a href="mailto:Bubbyslight@gmail.com">Bubbyslight@gmail.com</a></p>
+  </div>
+</footer>
+
+<div class="modal" id="done" hidden role="dialog" aria-modal="true" aria-labelledby="doneTitle">
+  <div class="modal-card">
+    <p class="eyebrow">Order request received</p>
+    <h2 id="doneTitle">Thank you. Your design is on its way to Bubby's Light.</h2>
+    <p class="ref">Reference <strong id="doneRef"></strong></p>
+    <img id="doneImg" alt="Your kit design">
+    <dl class="sum" id="doneSum"></dl>
+    <p>You will receive a print proof by email. Nothing prints until you approve it.</p>
+    <div class="actions">
+      <button class="primary" type="button" id="doneDl">Download my design</button>
+      <button class="ghost" type="button" id="doneClose">Back to designer</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
