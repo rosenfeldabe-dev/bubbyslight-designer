@@ -35,7 +35,12 @@
     { id: 'gold', label: 'Antique gold', color: '#8a6a2f' }
   ];
 
-  const QTYS = [500, 1000, 2500, 5000, 10000, 'other'];
+  const QTYS = [10000, 15000, 20000, 'other'];
+  const MIN_QTY = 10000;
+  // customer prices per kit, shipping included, before tax (Bubby's Light proposal, Nov 2026)
+  function pricePerKit(q) { return q >= 20000 ? 0.44 : q >= 15000 ? 0.45 : 0.46; }
+  const money = n => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  const cents = p => `${Math.round(p * 100)}¢`;
 
   const GALLERY = [
     { f: '01-bubbyslight-classic', t: "The Bubby's Light Kit", d: 'Our classic kit', n: '40,000' },
@@ -58,7 +63,7 @@
     hue: BASE_HUE, sat: 1, preset: 'blush',
     layout: 'both', font: 'lora-i', ink: 'match',
     logo: null, logoName: '', logoRaw: null, logoIsSvg: false, logoColor: 'original', knock: false, logoScale: 1,
-    ded1: '', ded2: '', msg1: '', msg2: '', qty: 1000
+    ded1: '', ded2: '', msg1: '', msg2: '', qty: 10000
   };
 
   const $ = (s, r = document) => r.querySelector(s);
@@ -471,20 +476,33 @@
   window.blRenderPrintPDF = renderPrintPDF;
 
   /* ---------- order ---------- */
+  function currentQty() { return state.qty === 'other' ? parseInt($('#qtyOther').value, 10) : state.qty; }
+  function updatePrice() {
+    const q = currentQty(), el = $('#priceEst');
+    if (!q || q < MIN_QTY) {
+      el.innerHTML = `<strong>Minimum order is ${MIN_QTY.toLocaleString()} kits.</strong>`;
+      return;
+    }
+    const p = pricePerKit(q);
+    el.innerHTML = `<span>Estimated total</span><strong>${money(q * p)}</strong><span>${q.toLocaleString()} kits at ${cents(p)} per kit, shipping included</span>`;
+  }
   function buildQty() {
     const g = $('#qtyGrid');
     QTYS.forEach(q => {
       const b = document.createElement('button'); b.type = 'button';
-      b.innerHTML = q === 'other' ? 'Other<small>your amount</small>' : `${q.toLocaleString()}<small>kits</small>`;
+      b.innerHTML = q === 'other' ? 'More<small>your amount</small>' : `${q.toLocaleString()}<small>${cents(pricePerKit(q))} per kit</small>`;
       b.setAttribute('aria-pressed', String(q === state.qty));
       b.addEventListener('click', () => {
         state.qty = q;
         $$('#qtyGrid button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
         $('#qtyOther').hidden = q !== 'other';
         if (q === 'other') $('#qtyOther').focus();
+        updatePrice();
       });
       g.appendChild(b);
     });
+    $('#qtyOther').addEventListener('input', updatePrice);
+    updatePrice();
   }
   function bindOrder() {
     const form = $('#orderForm');
@@ -496,13 +514,15 @@
       const missing = need.filter(id => !$('#' + id).value.trim());
       const email = $('#email').value.trim();
       if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) missing.push('email');
-      const qty = state.qty === 'other' ? parseInt($('#qtyOther').value, 10) : state.qty;
-      if (!qty || qty < 1) missing.push('qtyOther');
+      const qty = currentQty();
+      if (!qty || qty < MIN_QTY) missing.push('qtyOther');
       missing.forEach(id => $('#' + id).classList.add('bad'));
       if (!$('#approve').checked) missing.push('approve');
       if (missing.length) {
         err.hidden = false;
-        err.textContent = missing.includes('approve') && missing.length === 1
+        err.textContent = missing.includes('qtyOther')
+          ? `Custom kits start at ${MIN_QTY.toLocaleString()}. Please enter ${MIN_QTY.toLocaleString()} or more, or choose the ready made Brushstroke kit below.`
+          : missing.includes('approve') && missing.length === 1
           ? 'Please confirm you will approve a proof before printing.'
           : 'Please fill in the highlighted fields so we can send your proof.';
         const first = $('#' + missing[0]); first && first.focus();
@@ -511,7 +531,7 @@
       const d = new Date();
       const ref = `BL-${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
       const order = {
-        ref, createdAt: d.toISOString(), qty,
+        ref, createdAt: d.toISOString(), qty, pricePerKit: pricePerKit(qty), estimatedTotal: Math.round(qty * pricePerKit(qty) * 100) / 100,
         customer: { org: $('#org').value.trim(), name: $('#name').value.trim(), email, phone: $('#phone').value.trim(), address: $('#addr').value.trim(), needBy: $('#needBy').value, notes: $('#notes').value.trim() },
         design: { template: 'custom-template-logo-ready', color: presetName(), hue: Math.round(state.hue), hueRotation: Math.round(rotation()), saturation: state.sat, layout: state.layout, lettering: state.font, ink: inkColor(), dedication: [state.ded1, state.ded2].filter(Boolean), message: [state.msg1, state.msg2].filter(Boolean), logoFile: state.logoName || null, logoColor: state.logoColor, logoScale: state.logoScale }
       };
@@ -537,7 +557,7 @@
     $('#doneRef').textContent = o.ref;
     $('#doneImg').src = proof;
     const rows = [
-      ['Quantity', `${o.qty.toLocaleString()} kits`], ['For', o.customer.org], ['Color', o.design.color],
+      ['Quantity', `${o.qty.toLocaleString()} kits`], ['Estimated total', `${money(o.estimatedTotal)} at ${cents(o.pricePerKit)} per kit`], ['For', o.customer.org], ['Color', o.design.color],
       ['Dedication', o.design.dedication.join(' / ') || 'None'], ['Top flap', o.design.message.join(' / ') || 'None'],
       ['Logo', o.design.logoFile || 'None'], ['Proof to', o.customer.email]
     ];

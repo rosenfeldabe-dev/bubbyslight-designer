@@ -169,9 +169,10 @@
             <div class="qty">
               <span class="opt-label">How many kits?</span>
               <div class="qty-grid" id="qtyGrid"></div>
-              <input id="qtyOther" type="number" min="100" step="50" placeholder="Enter a quantity" hidden>
+              <input id="qtyOther" type="number" min="10000" step="1000" placeholder="Enter a quantity, 10,000 or more" hidden>
             </div>
-            <p class="price-note">Pricing is confirmed with your proof. No payment is taken today.</p>
+            <div class="price-est" id="priceEst" aria-live="polite"></div>
+            <p class="price-note">Prices are before tax and include shipping. Shipping is approximate and depends on your delivery address, so your final price is confirmed with your proof. No payment is taken today.</p>
             <div class="grid2">
               <div class="field"><label for="org">Chabad house or school</label><input id="org" required autocomplete="organization"></div>
               <div class="field"><label for="name">Your name</label><input id="name" required autocomplete="name"></div>
@@ -193,6 +194,22 @@
           </form>
         </li>
       </ol>
+    </div>
+  </section>
+
+  <section class="ready wrap" aria-labelledby="readyTitle">
+    <div class="ready-card">
+      <img src="assets/gallery/08-generic-v26.jpg" width="549" height="640" alt="Brushstroke Neshek Kit box" loading="lazy">
+      <div class="ready-body">
+        <p class="eyebrow">Fewer than 10,000 kits?</p>
+        <h2 id="readyTitle">Brushstroke Neshek Kit, ready made</h2>
+        <p class="hint">The same Bubby's Light kit with 2 tealights, in the Brushstroke design. No custom printing needed.</p>
+        <div class="ready-prices">
+          <div><span>Box of 100 kits</span><strong>$48.00</strong><small>48¢ per kit</small></div>
+          <div><span>Case of 400 kits</span><strong>$184.00</strong><small>46¢ per kit</small></div>
+        </div>
+        <p class="price-note">Prices are before tax. Shipping is added at checkout.</p>
+      </div>
     </div>
   </section>
 
