@@ -237,3 +237,4 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:url(assets/
 .embedded body{position:relative;min-height:100vh}
 .embedded body::before{position:absolute;inset:auto 0 auto 0;top:var(--bl-top,0px);height:var(--bl-vh,100vh)}
 @media (min-width:981px){.embedded .stage{top:calc(var(--bl-top,0px) + 16px)}}
+.price-est .freight{display:block;margin-top:6px;padding-top:6px;border-top:1px solid rgba(5,37,73,.12);color:var(--ink)}
