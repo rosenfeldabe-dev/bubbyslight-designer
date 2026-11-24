@@ -234,5 +234,6 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:url(assets/
 
 /* Embedded in merkos302.judaica.com */
 .embedded .topbar{display:none}
-.embedded body{position:relative;overflow:hidden}
-.embedded body::before{position:absolute;background:url(assets/brand/watercolor-wallpaper.jpg) top center/100% auto repeat-y}
+.embedded body{position:relative;min-height:100vh}
+.embedded body::before{position:absolute;inset:auto 0 auto 0;top:var(--bl-top,0px);height:var(--bl-vh,100vh)}
+.embedded .stage{top:calc(var(--bl-top,0px) + 16px)}

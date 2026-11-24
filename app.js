@@ -6,6 +6,13 @@ if (BL_EMBED) {
   const blPost = () => parent.postMessage({ bl: 'h', h: Math.ceil(document.body.getBoundingClientRect().height) }, '*');
   window.addEventListener('DOMContentLoaded', () => { blPost(); new ResizeObserver(blPost).observe(document.body); });
   window.addEventListener('load', blPost);
+  window.addEventListener('message', e => {
+    const d = e.data || {};
+    if (d.bl !== 'view') return;
+    const r = document.documentElement.style;
+    r.setProperty('--bl-top', Math.max(0, d.top) + 'px');
+    r.setProperty('--bl-vh', Math.max(300, d.vh) + 'px');
+  });
 }
 /* Bubby's Light kit designer for Merkos302 */
 (() => {
