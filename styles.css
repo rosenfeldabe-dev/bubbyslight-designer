@@ -236,4 +236,4 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:url(assets/
 .embedded .topbar{display:none}
 .embedded body{position:relative;min-height:100vh}
 .embedded body::before{position:absolute;inset:auto 0 auto 0;top:var(--bl-top,0px);height:var(--bl-vh,100vh)}
-.embedded .stage{top:calc(var(--bl-top,0px) + 16px)}
+@media (min-width:981px){.embedded .stage{top:calc(var(--bl-top,0px) + 16px)}}
