@@ -500,7 +500,7 @@ if (BL_EMBED) {
       return;
     }
     const p = pricePerKit(q);
-    el.innerHTML = `<span>Estimated total</span><strong>${money(q * p)}</strong><span>${q.toLocaleString()} kits at ${cents(p)} per kit</span><span class="freight"><b>Freight:</b> included, delivered to your door</span>`;
+    el.innerHTML = `<span>Estimated total</span><strong>${money(q * p)}</strong><span>${q.toLocaleString()} kits at ${cents(p)} per kit</span><span class="freight"><b>Freight:</b> included, delivered to your door<br><b>20% deposit on approval:</b> ${money(Math.round(q * p * 20) / 100)}</span>`;
   }
   function buildQty() {
     const g = $('#qtyGrid');
@@ -573,7 +573,7 @@ if (BL_EMBED) {
     $('#doneRef').textContent = o.ref;
     $('#doneImg').src = proof;
     const rows = [
-      ['Quantity', `${o.qty.toLocaleString()} kits`], ['Estimated total', `${money(o.estimatedTotal)} at ${cents(o.pricePerKit)} per kit`], ['Freight', 'Included'], ['For', o.customer.org], ['Color', o.design.color],
+      ['Quantity', `${o.qty.toLocaleString()} kits`], ['Estimated total', `${money(o.estimatedTotal)} at ${cents(o.pricePerKit)} per kit`], ['Freight', 'Included'], ['Deposit on approval', `${money(Math.round(o.estimatedTotal * 20) / 100)} (20%)`], ['For', o.customer.org], ['Color', o.design.color],
       ['Dedication', o.design.dedication.join(' / ') || 'None'], ['Top flap', o.design.message.join(' / ') || 'None'],
       ['Logo', o.design.logoFile || 'None'], ['Proof to', o.customer.email]
     ];
