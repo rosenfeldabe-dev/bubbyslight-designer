@@ -142,6 +142,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,.wheel:focus-vis
 .how-grid p{margin:0;color:var(--ink-2);font-size:14px}
 
 .gallery{padding:0 24px 64px}
+.gal-count{margin:2px 0 6px;font-size:15px;color:var(--ink-2)}
+.gal-count strong{font-family:var(--display);font-weight:500;font-size:26px;color:var(--ink);margin-right:6px}
 .gal-head p{margin:-10px 0 18px;color:var(--ink-2)}
 .gal-track{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .gal-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
@@ -225,6 +227,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:url(assets/
 .ready-prices span{font-size:13px;color:var(--ink-2);font-weight:500}
 .ready-prices strong{font-family:var(--display);font-weight:500;font-size:24px}
 .ready-prices small{font-size:12px;color:var(--muted)}
+.ready-prices .buy{margin-top:10px;display:inline-flex;justify-content:center;align-items:center;min-height:44px;text-decoration:none;text-align:center}
 @media (max-width:640px){
   .qty-grid{grid-template-columns:repeat(2,1fr)}
   .ready-card{grid-template-columns:1fr;padding:16px;gap:14px}
@@ -281,3 +284,5 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:url(assets/
 .lead-time{margin:6px 0 12px;font-size:14px;color:var(--ink)}
 @media (max-width:640px){.ready-card{grid-template-columns:1fr}.ready-pics{max-width:340px;margin:0 auto;width:100%}}
 .ready-card .zoomable img{max-width:none;margin:0}
+
+.soon{margin:10px 0 0;padding:9px 12px;border-radius:10px;background:#fbe9ef;border:1px solid #efc6d4;color:#7a2448;font-size:14px;line-height:1.45}

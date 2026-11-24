@@ -19,7 +19,7 @@ if (BL_EMBED) {
   'use strict';
 
   // Where order requests go once the Merkos302 hub endpoint exists. Null = prototype mode (local only).
-  const ORDER_ENDPOINT = null;
+  const ORDER_ENDPOINT = 'https://udajutrhmfdkswmpxqdu.supabase.co/functions/v1/bubbys-light';
 
   const BASE_HUE = 325;            // hue of the original blush watercolor
   const BASE_BG = [254, 220, 241]; // average color of the original background
@@ -510,9 +510,22 @@ if (BL_EMBED) {
     return svg;
   }
   const renderFlapCanvas = width => svgToCanvas(flapSvg(), width, Math.round(width * FLAP_H / FLAP_W), '#f6e4d9');
+  // Full Brushstroke sheet from Bubby's Light's own flat file. The artwork is inlined so it survives SVG to canvas rendering.
+  const brsArt = {};
+  async function brsArtData(res) {
+    const f = res === 'print' ? 'assets/brushstroke/flat-print.jpg' : 'assets/brushstroke/flat-web.jpg';
+    if (!brsArt[res]) brsArt[res] = fetch(f).then(r => r.blob()).then(blobToDataURL);
+    return brsArt[res];
+  }
+  async function renderBrsCanvas(width, res) {
+    const svg = $('#kitBrs').cloneNode(true);
+    svg.removeAttribute('hidden');
+    svg.querySelector('#brsFlat').setAttribute('href', await brsArtData(res));
+    return svgToCanvas(svg, width, Math.round(width * SHEET_H / SHEET_W));
+  }
   async function renderPNG(width = 2400) {
     if (state.mode === 'own') return null;
-    const c = state.mode === 'brs' ? await renderFlapCanvas(width) : await renderCanvas(width);
+    const c = state.mode === 'brs' ? await renderBrsCanvas(width, 'web') : await renderCanvas(width);
     return c.toDataURL('image/png');
   }
   const PRINT_DPI = 600;
@@ -567,8 +580,8 @@ if (BL_EMBED) {
   }
   async function renderPrintPDF() {
     if (state.mode === 'brs') {
-      const c = await renderFlapCanvas(Math.round(FLAP_W / 72 * PRINT_DPI));
-      return cmykPDF(c, FLAP_W, FLAP_H, "Bubby's Light Brushstroke kit, custom top flap", `Top flap artwork 1.73 x 0.59 in, CMYK, ${PRINT_DPI} dpi`);
+      const c = await renderBrsCanvas(Math.round(SHEET_W / 72 * PRINT_DPI), 'print');
+      return cmykPDF(c, SHEET_W, SHEET_H, "Bubby's Light Brushstroke kit with custom top flap", `Print sheet 5.5 x 5.53 in, CMYK, ${PRINT_DPI} dpi`);
     }
     const c = await renderCanvas(Math.round(SHEET_W / 72 * PRINT_DPI));
     return cmykPDF(c, SHEET_W, SHEET_H, "Bubby's Light custom watercolor kit print file", `Print sheet 5.5 x 5.53 in, CMYK, ${PRINT_DPI} dpi`);
@@ -579,7 +592,7 @@ if (BL_EMBED) {
   async function designFile(ref) {
     if (state.mode === 'own') return null;
     const pdf = await renderPrintPDF();
-    const kind = state.mode === 'brs' ? 'brushstroke-top-flap' : 'pink-floral-kit';
+    const kind = state.mode === 'brs' ? 'brushstroke-kit' : 'pink-floral-kit';
     return { name: `${ref}-${kind}-print-file-${stamp()}.pdf`, type: 'application/pdf', size: pdf.size, data: await blobToDataURL(pdf) };
   }
   window.blDesignFile = designFile;
@@ -655,18 +668,34 @@ if (BL_EMBED) {
         const proof = await renderPNG(1400);
         const file = await designFile(ref);
         order.designFile = file ? { name: file.name, type: file.type, size: file.size } : null;
-        const payload = { ...order, designFileData: file && file.data, proofPng: proof, logoData: state.mode === 'own' ? null : state.logo, referenceFiles: state.mode === 'own' ? state.refData : [] };
-        window.lastOrderPayload = payload;
-        if (ORDER_ENDPOINT) {
-          const r = await fetch(ORDER_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
-          if (!r.ok) throw new Error('Order endpoint returned ' + r.status);
-        } else {
-          (window.blOrders = window.blOrders || []).push(order);
-          window.lastOrder = order;
+        const uploads = [];
+        if (file) uploads.push({ kind: 'design', name: file.name.replace(ref + '-', ''), type: file.type, data: file.data });
+        if (proof) uploads.push({ kind: 'proof', name: 'preview.png', type: 'image/png', data: proof });
+        if (state.mode !== 'own' && state.logo) uploads.push({ kind: 'logo', name: state.logoName || 'logo.png', type: (String(state.logo).match(/^data:([^;,]+)/) || [])[1] || 'image/png', data: state.logo });
+        if (state.mode === 'own') state.refData.slice(0, 6).forEach(x => uploads.push({ kind: 'reference', name: x.name, type: x.type || 'application/octet-stream', data: x.data }));
+        const blobs = await Promise.all(uploads.map(u => fetch(u.data).then(r => r.blob())));
+        window.lastOrderPayload = { ...order, uploads: uploads.map((u, i) => ({ kind: u.kind, name: u.name, size: blobs[i].size })) };
+        if (!state.clientRequestId) state.clientRequestId = (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, () => (Math.random() * 16 | 0).toString(16)));
+        const post = async body => {
+          const r = await fetch(ORDER_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          const j = await r.json().catch(() => ({}));
+          if (!r.ok) { const e = new Error(j.error || 'status ' + r.status); e.code = j.error; throw e; }
+          return j;
+        };
+        const c = order.customer;
+        const created = await post({ op: 'create', client_request_id: state.clientRequestId, option: state.mode, qty, email: c.email, org: c.org, name: c.name, phone: c.phone, address: c.address, need_by: c.needBy, notes: c.notes, design: order.design, source: 'designer', page_url: String(document.referrer || location.href).slice(0, 300), website: ($('#website') || {}).value || '', files: uploads.map((u, i) => ({ kind: u.kind, name: u.name, type: u.type, size: blobs[i].size })) });
+        const done = [];
+        for (const up of created.uploads || []) {
+          const r = await fetch(up.url, { method: 'PUT', headers: { 'Content-Type': up.type || 'application/octet-stream', 'x-upsert': 'true' }, body: blobs[up.index] });
+          if (!r.ok) throw new Error('upload ' + r.status);
+          done.push({ kind: up.kind, name: up.name, type: up.type, size: up.size, path: up.path });
         }
+        await post({ op: 'finish', id: created.id, ref: created.ref, client_request_id: state.clientRequestId, files: done });
+        order.ref = created.ref; order.pricePerKit = Number(created.price_per_kit) || order.pricePerKit; order.estimatedTotal = Number(created.est_total) || order.estimatedTotal;
+        state.clientRequestId = null;
         showDone(order, proof);
       } catch (ex) {
-        console.error(ex); err.hidden = false; err.textContent = 'Something went wrong sending your request. Please try again, or email Bubbyslight@gmail.com.';
+        console.error(ex); err.hidden = false; err.textContent = ex.code === 'rate_limited' ? 'We received several requests from you in the last hour. Please try again later, or email Bubbyslight@gmail.com.' : 'Something went wrong sending your request. Please try again, or email Bubbyslight@gmail.com.';
       } finally { submitBtn.disabled = false; submitBtn.textContent = 'Send my order request'; }
     });
   }

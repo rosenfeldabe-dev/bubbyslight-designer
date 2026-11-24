@@ -26,12 +26,7 @@
     </div>
     <p class="eyebrow"><span>For Shluchim</span><span class="amp">&amp;</span><span>Mechanchim</span></p>
     <h1>Design your own <em>custom Neshek kit</em></h1>
-    <p class="lede">Every kit is made by Bubby's Light and arrives ready packed with 2 tealights. Order the ready made Brushstroke kit today, or make a custom kit your own and approve a proof before anything prints.</p>
-    <div class="stats">
-      <div><strong>160,000+</strong><span>kits distributed</span></div>
-      <div><strong>2</strong><span>tealights in every kit</span></div>
-      <div><strong>Proof first</strong><span>nothing prints until you approve</span></div>
-    </div>
+    <p class="lede">Every kit is made by Bubby's Light and arrives ready packed with 2 tealights. Preorder the ready made Brushstroke kit, coming soon, or make a custom kit your own and approve a proof before anything prints.</p>
   </section>
 
   <section class="ready wrap" aria-labelledby="readyTitle">
@@ -41,12 +36,13 @@
         <button type="button" class="zoomable" data-zoom="assets/brushstroke/back.jpg" data-alt="Back of the Brushstroke Neshek Kit with the candle lighting instructions and brachos"><img src="assets/gallery/brushstroke-back.png" width="560" height="995" alt="Back of the Brushstroke Neshek Kit"><span>Back, brachos</span></button>
       </div>
       <div class="ready-body">
-        <p class="eyebrow">Ready to order</p>
+        <p class="eyebrow">Coming soon, on order now</p>
         <h2 id="readyTitle">Brushstroke Neshek Kit, ready made</h2>
-        <p class="hint">Bubby's Light kits with 2 tealights in the Brushstroke design, ready to ship. No minimum and no custom printing needed.</p>
+        <p class="hint">Bubby's Light kits with 2 tealights in the Brushstroke design. No minimum and no custom printing needed.</p>
+        <p class="soon"><b>Coming soon.</b> These kits are on order. Preorder today and yours ship as soon as they arrive.</p>
         <div class="ready-prices">
-          <div><span>Box of 100 kits</span><strong>$48.00</strong><small>48¢ per kit</small></div>
-          <div><span>Case of 400 kits</span><strong>$184.00</strong><small>46¢ per kit</small></div>
+          <div><span>Box of 100 kits</span><strong>$48.00</strong><small>48¢ per kit</small><a class="primary buy" href="https://merkos302.judaica.com/cart/68247394419004:1" target="_top" rel="noopener">Preorder a box</a></div>
+          <div><span>Case of 400 kits</span><strong>$184.00</strong><small>46¢ per kit</small><a class="primary buy" href="https://merkos302.judaica.com/cart/68247394451772:1" target="_top" rel="noopener">Preorder a case</a></div>
         </div>
         <p class="price-note">Prices are before tax. <b>Shipping:</b> UPS Ground, calculated separately at checkout for your address.</p>
         <p class="hint ready-zoom">Tap the front or back to see it full size.</p>
@@ -134,21 +130,7 @@
                 <radialGradient id="flapBg" cx="50%" cy="45%" r="75%"><stop offset="0" stop-color="#faeee6"/><stop offset="1" stop-color="#f3dccf"/></radialGradient>
               </defs>
               <g id="brsComposite">
-                <g class="brs-blank" fill="#f6e6dc" stroke="#cdbdb4" stroke-width=".4">
-                  <path d="M52.3 40.3 V22 Q52.3 8 66 8 H162.9 Q176.6 8 176.6 22 V40.3 Z"/>
-                  <path d="M176.6 82.7 V70 Q176.6 60 186 60 H209.6 Q219 60 219 70 V82.7 Z"/>
-                  <path d="M9.8 82.7 V70 Q9.8 60 19.2 60 H42.8 Q52.2 60 52.2 70 V82.7 Z"/>
-                  <rect x="52.3" y="314.8" width="124.3" height="42.4"/>
-                  <path d="M52.3 357.2 V372 Q52.3 386 66 386 H162.9 Q176.6 386 176.6 372 V357.2 Z"/>
-                  <path d="M176.6 314.8 V327 Q176.6 337 186 337 H209.6 Q219 337 219 327 V314.8 Z"/>
-                  <path d="M9.8 314.8 V327 Q9.8 337 19.2 337 H42.8 Q52.2 337 52.2 327 V314.8 Z"/>
-                  <path d="M343.3 90 L360 100 V297 L343.3 307 Z"/>
-                </g>
-                <image href="assets/brushstroke/left.jpg" x="9.8" y="82.7" width="42.5" height="232.1" preserveAspectRatio="none"/>
-                <image href="assets/brushstroke/front.jpg" x="52.3" y="82.7" width="124.4" height="232.1" preserveAspectRatio="none"/>
-                <image href="assets/brushstroke/right.jpg" x="176.6" y="82.7" width="42.5" height="232.1" preserveAspectRatio="none"/>
-                <image href="assets/brushstroke/back.jpg" x="219" y="82.7" width="124.3" height="232.1" preserveAspectRatio="none"/>
-                <rect id="flapBgRect" x="52.3" y="40.3" width="124.3" height="42.4" fill="url(#flapBg)"/>
+                <image id="brsFlat" href="assets/brushstroke/flat-web.jpg" x="0" y="0" width="396" height="398.16" preserveAspectRatio="none"/>
                 <g id="flapContent" transform="translate(52.3 40.3)">
                   <text id="fMsg1" text-anchor="middle"></text>
                   <text id="fMsg2" text-anchor="middle"></text>
@@ -302,6 +284,7 @@
             <p class="form-err" id="formErr" role="alert" hidden></p>
             <p class="hint dl-note" id="dlNote">Your finished design file is sent with your order request.</p>
             <div class="actions">
+              <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
               <button class="primary" type="submit">Send my order request</button>
             </div>
           </form>
@@ -323,6 +306,7 @@
   <section class="gallery wrap" aria-labelledby="galTitle">
     <div class="gal-head">
       <h2 id="galTitle">Kits Bubby's Light has made</h2>
+      <p class="gal-count"><strong>160,000+</strong> kits distributed</p>
       <p>Custom kits produced together with Chabad houses, schools and campaigns.</p>
     </div>
     <div class="gal-track" id="galTrack"></div>
