@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Design Your Shabbos Candle Kit | Bubby's Light at Merkos302</title>
-<meta name="description" content="Design custom Bubby's Light Shabbos candle kits for your Chabad house or school. Pick your colors, upload your logo, add a dedication and request your order.">
+<title>Design Your Own Custom Neshek Kit | Bubby's Light at Merkos302</title>
+<meta name="description" content="Design your own custom Neshek kits by Bubby's Light for your Chabad house or school. Pick your colors, upload your logo, add a dedication and request your order.">
 <link rel="stylesheet" href="fonts-local.css">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -25,8 +25,8 @@
       <img class="cb-bubbys" src="assets/brand/bubbys-light-logo.png" width="497" height="717" alt="Bubby's Light, honoring the legacy of Bubby Duchman OB&quot;M">
     </div>
     <p class="eyebrow"><span>For Shluchim</span><span class="amp">&amp;</span><span>Mechanchim</span></p>
-    <h1>Design your own <em>Shabbos candle kits</em></h1>
-    <p class="lede">Bubby's Light kits arrive ready packed with 2 tealights. Choose your colors, add your logo and dedication, and you will receive a proof to approve before anything prints.</p>
+    <h1>Design your own <em>custom Neshek kit</em></h1>
+    <p class="lede">Every kit is made by Bubby's Light and arrives ready packed with 2 tealights. Order the ready made Brushstroke kit today, or make a custom kit your own and approve a proof before anything prints.</p>
     <div class="stats">
       <div><strong>160,000+</strong><span>kits distributed</span></div>
       <div><strong>2</strong><span>tealights in every kit</span></div>
@@ -34,10 +34,52 @@
     </div>
   </section>
 
+  <section class="ready wrap" aria-labelledby="readyTitle">
+    <div class="ready-card">
+      <img src="assets/gallery/08-generic-v26.jpg" width="549" height="640" alt="Brushstroke Neshek Kit box" >
+      <div class="ready-body">
+        <p class="eyebrow">Ready to order</p>
+        <h2 id="readyTitle">Brushstroke Neshek Kit, ready made</h2>
+        <p class="hint">Bubby's Light kits with 2 tealights in the Brushstroke design, ready to ship. No minimum and no custom printing needed.</p>
+        <div class="ready-prices">
+          <div><span>Box of 100 kits</span><strong>$48.00</strong><small>48¢ per kit</small></div>
+          <div><span>Case of 400 kits</span><strong>$184.00</strong><small>46¢ per kit</small></div>
+        </div>
+        <p class="price-note">Prices are before tax. <b>Freight:</b> UPS Ground, calculated at checkout for your address.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="options wrap" id="options" aria-labelledby="optTitle">
+    <p class="eyebrow">Custom kits, 10,000 and up</p>
+    <h2 id="optTitle">Make a kit your own</h2>
+    <p class="hint">Choose one of three ways to customize your kit.</p>
+    <div class="opt-grid" role="radiogroup" aria-label="Custom kit options">
+      <button type="button" class="opt-card" role="radio" aria-checked="true" data-mode="pink">
+        <img src="assets/gallery/09-custom-template.jpg" width="549" height="640" alt="">
+        <span class="opt-num">Option 1</span>
+        <strong>Watercolor kit, fully custom</strong>
+        <span class="opt-desc">Change the colors with the color wheel, add your logo, a dedication and a top flap message. Download a print ready CMYK file.</span>
+      </button>
+      <button type="button" class="opt-card" role="radio" aria-checked="false" data-mode="brs">
+        <img src="assets/gallery/08-generic-v26.jpg" width="549" height="640" alt="">
+        <span class="opt-num">Option 2</span>
+        <strong>Brushstroke kit, custom top flap</strong>
+        <span class="opt-desc">Keep the Brushstroke design and make the empty top flap yours, with your logo, a dedication or any words you like.</span>
+      </button>
+      <button type="button" class="opt-card" role="radio" aria-checked="false" data-mode="own">
+        <img src="assets/gallery/04-yeshiva-flatbush.jpg" width="549" height="640" alt="">
+        <span class="opt-num">Option 3</span>
+        <strong>Your own unique design</strong>
+        <span class="opt-desc">Want something completely different? Share your idea and Bubby's Light will create a one of a kind kit with you.</span>
+      </button>
+    </div>
+  </section>
+
   <section class="studio wrap" id="studio" aria-label="Kit designer">
     <div class="stage">
       <div class="stage-card">
-        <div class="stage-head">
+        <div class="stage-head" id="stageHead">
           <div class="seg" role="tablist" aria-label="Preview mode">
             <button role="tab" aria-selected="true" data-view="box">Box view</button>
             <button role="tab" aria-selected="false" data-view="flat">Print layout</button>
@@ -84,14 +126,58 @@
           </div>
           <div class="loading" id="loading"><span></span>Loading your kit</div>
         </div>
+        <div class="alt-stage" id="brsStage" hidden>
+          <img class="brs-box" src="assets/gallery/brushstroke-front.png" width="560" height="995" alt="Brushstroke Neshek Kit box">
+          <div class="flap-wrap">
+            <p class="opt-label">Your top flap</p>
+            <div class="flap-box">
+            <svg id="flap" viewBox="0 0 124.3 42.4" role="img" aria-label="Preview of your custom top flap">
+              <defs>
+                <filter id="flapMono" color-interpolation-filters="sRGB"><feFlood id="flapMonoColor" flood-color="#934253"/><feComposite in2="SourceAlpha" operator="in"/></filter>
+                <clipPath id="flapLogoClip"><rect id="flapLogoClipRect" x="0" y="0" width="0" height="0"/></clipPath>
+                <radialGradient id="flapBg" cx="50%" cy="45%" r="75%"><stop offset="0" stop-color="#faeee6"/><stop offset="1" stop-color="#f3dccf"/></radialGradient>
+              </defs>
+              <rect id="flapBgRect" width="124.3" height="42.4" fill="url(#flapBg)"/>
+              <text id="fMsg1" text-anchor="middle"></text>
+              <text id="fMsg2" text-anchor="middle"></text>
+              <g clip-path="url(#flapLogoClip)"><image id="flapLogo" preserveAspectRatio="xMidYMid meet"/></g>
+            </svg>
+            <p class="flap-empty" id="flapEmpty">Your logo and words appear here</p>
+            </div>
+            <p class="flap-size">Top flap, 1.73 by 0.59 inches</p>
+          </div>
+        </div>
+        <div class="alt-stage" id="ownStage" hidden>
+          <div class="own-grid">
+            <img src="assets/gallery/02-chabad-air.jpg" width="549" height="640" alt="Chabad Air kit">
+            <img src="assets/gallery/05-soul-links.jpg" width="549" height="640" alt="Soul Links kit">
+            <img src="assets/gallery/03-chaya-menucha.jpg" width="549" height="640" alt="Chaya Menucha kit">
+            <img src="assets/gallery/06-motti-aqua.jpg" width="549" height="640" alt="Mitzvos for Motti kit">
+          </div>
+          <p class="own-copy">Every one of these kits started as an idea. Tell Bubby's Light what you have in mind and you will receive original artwork as a proof to approve.</p>
+        </div>
         <p class="stage-note" id="stageNote">Drag to turn the box. The print layout shows every panel flat, as Bubby's Light prints it.</p>
       </div>
     </div>
 
     <div class="controls">
       <ol class="steps">
+        <li class="step" id="step-idea" hidden>
+          <h2><span class="num" data-n>1</span>Tell us your idea</h2>
+          <div class="field">
+            <label for="idea">What would you like your kit to look like?</label>
+            <textarea id="idea" rows="4" placeholder="Colors, artwork, a theme, a campaign name, words you would like on the box"></textarea>
+          </div>
+          <label class="drop" id="refDrop">
+            <input type="file" id="refFiles" multiple accept="image/*,application/pdf">
+            <span class="drop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></span>
+            <span class="drop-text"><strong>Add your logo and reference images</strong><small>Optional. Images or PDF. Bubby's Light will ask for full size files with your proof.</small></span>
+          </label>
+          <p class="hint ref-list" id="refList" hidden></p>
+        </li>
+
         <li class="step" id="step-color">
-          <h2><span class="num">1</span>Pick your colors</h2>
+          <h2><span class="num" data-n>1</span>Pick your colors</h2>
           <div class="color-row">
             <div class="wheel" id="wheel" role="slider" tabindex="0" aria-label="Kit color" aria-valuemin="0" aria-valuemax="360" aria-valuenow="325">
               <div class="wheel-ring"></div>
@@ -107,7 +193,7 @@
         </li>
 
         <li class="step" id="step-logo">
-          <h2><span class="num">2</span>Add your logo</h2>
+          <h2><span class="num" data-n>2</span>Add your logo</h2>
           <label class="drop" id="drop">
             <input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp">
             <span class="drop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></span>
@@ -126,7 +212,15 @@
             <label class="check"><input type="checkbox" id="knockWhite"> Remove white background</label>
             <label class="range"><span>Logo size</span><input type="range" id="logoScale" min="0.5" max="1" step="0.02" value="1"></label>
           </div>
-          <div class="opt-row layout-row">
+          <div class="opt-row layout-row" id="flapLayoutRow" hidden>
+            <span class="opt-label">Top flap layout</span>
+            <div class="seg small" id="flapSeg">
+              <button type="button" aria-pressed="true" data-v="both">Logo and words</button>
+              <button type="button" aria-pressed="false" data-v="logo">Logo only</button>
+              <button type="button" aria-pressed="false" data-v="words">Words only</button>
+            </div>
+          </div>
+          <div class="opt-row layout-row" id="frontLayoutRow">
             <span class="opt-label">Front layout</span>
             <div class="seg small" id="layoutSeg">
               <button type="button" aria-pressed="true" data-v="both">Dedication and logo</button>
@@ -137,15 +231,15 @@
         </li>
 
         <li class="step" id="step-words">
-          <h2><span class="num">3</span>Add your words</h2>
+          <h2><span class="num" data-n>3</span><span id="wordsTitle">Add your words</span></h2>
           <div class="field" id="dedField">
             <label for="ded1">Dedication, front of box</label>
             <input id="ded1" maxlength="48" placeholder="In loving memory of Mrs. Rochel Duchman">
             <input id="ded2" maxlength="48" placeholder="Second line, optional">
             <small>Hebrew is welcome. It switches to a Hebrew typeface automatically.</small>
           </div>
-          <div class="field">
-            <label for="msg1">Message, top flap</label>
+          <div class="field" id="msgField">
+            <label for="msg1" id="msgLabel">Message, top flap</label>
             <input id="msg1" maxlength="40" placeholder="Chabad of Your City">
             <input id="msg2" maxlength="40" placeholder="Second line, optional">
           </div>
@@ -164,7 +258,7 @@
         </li>
 
         <li class="step" id="step-order">
-          <h2><span class="num">4</span>Request your order</h2>
+          <h2><span class="num" data-n>4</span>Request your order</h2>
           <form id="orderForm" novalidate>
             <div class="qty">
               <span class="opt-label">How many kits?</span>
@@ -186,7 +280,7 @@
             </div>
             <label class="check approve"><input type="checkbox" id="approve" required> I understand Bubby's Light will email me a final proof, and printing starts only after I approve it.</label>
             <p class="form-err" id="formErr" role="alert" hidden></p>
-            <p class="hint dl-note">The print file is a PDF at the kit's actual size, 5.5 by 5.53 inches, at 600 dpi.</p>
+            <p class="hint dl-note" id="dlNote">The print file is a CMYK PDF at the kit's actual size, 5.5 by 5.53 inches, at 600 dpi.</p>
             <div class="actions">
               <button class="primary" type="submit">Send my order request</button>
               <button class="ghost" type="button" id="dlProof">Download print file (PDF)</button>
@@ -197,26 +291,10 @@
     </div>
   </section>
 
-  <section class="ready wrap" aria-labelledby="readyTitle">
-    <div class="ready-card">
-      <img src="assets/gallery/08-generic-v26.jpg" width="549" height="640" alt="Brushstroke Neshek Kit box" loading="lazy">
-      <div class="ready-body">
-        <p class="eyebrow">Fewer than 10,000 kits?</p>
-        <h2 id="readyTitle">Brushstroke Neshek Kit, ready made</h2>
-        <p class="hint">The same Bubby's Light kit with 2 tealights, in the Brushstroke design. No custom printing needed.</p>
-        <div class="ready-prices">
-          <div><span>Box of 100 kits</span><strong>$48.00</strong><small>48¢ per kit</small></div>
-          <div><span>Case of 400 kits</span><strong>$184.00</strong><small>46¢ per kit</small></div>
-        </div>
-        <p class="price-note">Prices are before tax. <b>Freight:</b> UPS Ground, calculated at checkout for your address.</p>
-      </div>
-    </div>
-  </section>
-
   <section class="how wrap" aria-labelledby="howTitle">
     <h2 id="howTitle">How it works</h2>
     <ol class="how-grid">
-      <li><span>1</span><h3>Design it here</h3><p>Pick your colors, upload your logo and write your dedication.</p></li>
+      <li><span>1</span><h3>Choose your option</h3><p>Design your kit right here, customize the Brushstroke top flap, or share an idea for your own unique design.</p></li>
       <li><span>2</span><h3>Get your proof</h3><p>Bubby's Light refines the layout and emails you a print proof.</p></li>
       <li><span>3</span><h3>Approve and pay your deposit</h3><p>Approve your proof and pay a 20% deposit. Then printing begins.</p></li>
       <li><span>4</span><h3>Kits arrive packed</h3><p>Every kit comes ready with 2 tealights, ready for mivtzoim.</p></li>
@@ -247,7 +325,7 @@
 
 <div class="modal" id="done" hidden role="dialog" aria-modal="true" aria-labelledby="doneTitle">
   <div class="modal-card">
-    <p class="eyebrow">Order request received</p>
+    <p class="eyebrow" id="doneEyebrow">Order request received</p>
     <h2 id="doneTitle">Thank you. Your design is on its way to Bubby's Light.</h2>
     <p class="ref">Reference <strong id="doneRef"></strong></p>
     <img id="doneImg" alt="Your kit design">

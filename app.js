@@ -79,7 +79,20 @@ if (BL_EMBED) {
     hue: BASE_HUE, sat: 1, preset: 'blush',
     layout: 'both', font: 'lora-i', ink: 'match',
     logo: null, logoName: '', logoRaw: null, logoIsSvg: false, logoColor: 'original', knock: false, logoScale: 1,
-    ded1: '', ded2: '', msg1: '', msg2: '', qty: 10000
+    ded1: '', ded2: '', msg1: '', msg2: '', qty: 10000,
+    mode: 'pink', flap: 'both', refFiles: []
+  };
+  const BRS_INK = '#934253'; // Brushstroke headline rose, sampled from the kit
+  const FLAP_W = 124.3, FLAP_H = 42.4; // top flap face in points (1.73 x 0.59 in)
+  const FLAP_ZONES = {
+    both:  { logo: { x: 14, y: 4, w: 96.3, h: 19 }, text: { x: 6, y: 24, w: 112.3, h: 15 } },
+    logo:  { logo: { x: 10, y: 5, w: 104.3, h: 32.4 } },
+    words: { text: { x: 5, y: 4, w: 114.3, h: 34.4 } }
+  };
+  const MODES = {
+    pink: { name: 'Watercolor kit, fully custom', steps: ['step-color', 'step-logo', 'step-words', 'step-order'] },
+    brs:  { name: 'Brushstroke kit, custom top flap', steps: ['step-logo', 'step-words', 'step-order'] },
+    own:  { name: 'Your own unique design', steps: ['step-idea', 'step-order'] }
   };
 
   const $ = (s, r = document) => r.querySelector(s);
@@ -109,7 +122,7 @@ if (BL_EMBED) {
   function toned(rgb) { return apply(satMatrix(state.sat), apply(hueMatrix(rotation()), rgb)); }
   const hex = ([r, g, b]) => '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
   const rotation = () => ((state.hue - BASE_HUE) % 360 + 360) % 360;
-  const inkColor = () => state.ink === 'match' ? hex(toned(BASE_ACCENT)) : INKS.find(i => i.id === state.ink).color;
+  const inkColor = () => state.ink === 'match' ? (state.mode === 'brs' ? BRS_INK : hex(toned(BASE_ACCENT))) : INKS.find(i => i.id === state.ink).color;
 
   /* ---------- template load ---------- */
   async function loadTemplate() {
@@ -231,7 +244,26 @@ if (BL_EMBED) {
       img.removeAttribute('href');
     }
     $('#dedField').style.opacity = state.layout === 'logo' ? 0.45 : 1;
+    drawFlap();
     updateLogoWarn();
+  }
+  function drawFlap() {
+    const z = FLAP_ZONES[state.flap];
+    const t1 = $('#fMsg1'), t2 = $('#fMsg2');
+    if (z.text) {
+      layoutLines([state.msg1, state.msg2], z.text, state.flap === 'words' ? 13 : 9, state.flap === 'words' ? 10.5 : 6.6, [t1, t2]);
+    } else { t1.textContent = ''; t2.textContent = ''; }
+    const img = $('#flapLogo');
+    if (z.logo && state.logo) {
+      const lz = z.logo, sc = state.logoScale, w = lz.w * sc, h = lz.h * sc;
+      img.setAttribute('href', state.logo);
+      [['x', lz.x + (lz.w - w) / 2], ['y', lz.y + (lz.h - h) / 2], ['width', w], ['height', h]].forEach(([n, v]) => img.setAttribute(n, v.toFixed(2)));
+      const cr = $('#flapLogoClipRect');
+      [['x', lz.x], ['y', lz.y], ['width', lz.w], ['height', lz.h]].forEach(([n, v]) => cr.setAttribute(n, v));
+      $('#flapMonoColor').setAttribute('flood-color', inkColor());
+      if (state.logoColor === 'mono') img.setAttribute('filter', 'url(#flapMono)'); else img.removeAttribute('filter');
+    } else img.removeAttribute('href');
+    $('#flapEmpty').hidden = !!((z.text && (state.msg1 || state.msg2)) || (z.logo && state.logo));
   }
   const presetName = () => (PRESETS.find(p => p.id === state.preset) || { name: 'Custom' }).name;
 
@@ -342,8 +374,9 @@ if (BL_EMBED) {
   }
   function updateLogoWarn() {
     const el = $('#logoWarn');
-    if (!state.logo || state.logoIsSvg || state.layout === 'ded') { el.hidden = true; return; }
-    const zone = state.layout === 'logo' ? ZONES.big : ZONES.logo;
+    const brs = state.mode === 'brs';
+    if (!state.logo || state.logoIsSvg || (!brs && state.layout === 'ded') || (brs && state.flap === 'words')) { el.hidden = true; return; }
+    const zone = brs ? FLAP_ZONES[state.flap].logo : state.layout === 'logo' ? ZONES.big : ZONES.logo;
     const needed = Math.round(zone.w * state.logoScale / 72 * 300);
     if (state.logoPx < needed) {
       el.hidden = false;
@@ -440,13 +473,13 @@ if (BL_EMBED) {
     return (fontCSS = parts.join(''));
   }
   const SHEET_W = 396, SHEET_H = 398.16; // points, actual print sheet size (5.5 x 5.53 in)
-  async function renderCanvas(width) {
-    const height = Math.round(width * SHEET_H / SHEET_W);
-    const svg = $('#kit').cloneNode(true);
+  async function svgToCanvas(svgEl, width, height, bg) {
+    const svg = svgEl.cloneNode(true);
     svg.setAttribute('xmlns', NS);
     svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
     svg.setAttribute('width', width);
     svg.setAttribute('height', height);
+    svg.removeAttribute('style');
     const style = document.createElementNS(NS, 'style');
     style.textContent = await embeddedFonts();
     svg.insertBefore(style, svg.firstChild);
@@ -456,36 +489,90 @@ if (BL_EMBED) {
       const img = await loadImage(url);
       const c = document.createElement('canvas');
       c.width = width; c.height = height;
-      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, width, height);
+      const x = c.getContext('2d'); x.fillStyle = bg || '#fff'; x.fillRect(0, 0, width, height);
       x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
       x.drawImage(img, 0, 0, width, height);
       return c;
     } finally { URL.revokeObjectURL(url); }
   }
-  async function renderPNG(width = 2400) { return (await renderCanvas(width)).toDataURL('image/png'); }
-  let jsPDFReady = null;
-  function loadJsPDF() {
-    if (window.jspdf) return Promise.resolve(window.jspdf);
-    return jsPDFReady || (jsPDFReady = new Promise((res, rej) => {
-      const s = document.createElement('script'); s.src = 'assets/jspdf.umd.min.js';
-      s.onload = () => res(window.jspdf); s.onerror = rej; document.head.appendChild(s);
-    }));
+  const renderCanvas = width => svgToCanvas($('#kit'), width, Math.round(width * SHEET_H / SHEET_W));
+  const renderFlapCanvas = width => svgToCanvas($('#flap'), width, Math.round(width * FLAP_H / FLAP_W), '#f6e4d9');
+  async function renderPNG(width = 2400) {
+    if (state.mode === 'own') return null;
+    const c = state.mode === 'brs' ? await renderFlapCanvas(width) : await renderCanvas(width);
+    return c.toDataURL('image/png');
   }
   const PRINT_DPI = 600;
+
+  /* CMYK PDF writer: converts the rendered artwork to DeviceCMYK and writes an actual size PDF */
+  function canvasToCMYK(canvas) {
+    const w = canvas.width, h = canvas.height;
+    const d = canvas.getContext('2d').getImageData(0, 0, w, h).data;
+    const out = new Uint8Array(w * h * 4);
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i] / 255, g = d[i + 1] / 255, b = d[i + 2] / 255;
+      const k = 1 - Math.max(r, g, b);
+      if (k >= 0.999) { out[i + 3] = 255; continue; }
+      const ik = 1 / (1 - k);
+      out[i] = Math.round((1 - r - k) * ik * 255);
+      out[i + 1] = Math.round((1 - g - k) * ik * 255);
+      out[i + 2] = Math.round((1 - b - k) * ik * 255);
+      out[i + 3] = Math.round(k * 255);
+    }
+    return { w, h, data: out };
+  }
+  async function deflate(u8) {
+    if (typeof CompressionStream === 'undefined') return null;
+    const stream = new Blob([u8]).stream().pipeThrough(new CompressionStream('deflate'));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+  const pdfStr = t => t.replace(/[\\()]/g, m => '\\' + m).replace(/[^\x20-\x7e]/g, '');
+  async function cmykPDF(canvas, wPt, hPt, title, subject) {
+    const { w, h, data } = canvasToCMYK(canvas);
+    const packed = await deflate(data);
+    const img = packed || data;
+    const enc = new TextEncoder(), parts = [], offs = [];
+    let len = 0;
+    const push = x => { const u = typeof x === 'string' ? enc.encode(x) : x; parts.push(u); len += u.length; };
+    const obj = (n, ...body) => { offs[n] = len; push(`${n} 0 obj\n`); body.forEach(push); push('\nendobj\n'); };
+    const W = +wPt.toFixed(2), H = +hPt.toFixed(2);
+    const content = `q ${W} 0 0 ${H} 0 0 cm /Im0 Do Q`;
+    const d = new Date(), pad = n => String(n).padStart(2, '0');
+    const when = `D:${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+    push('%PDF-1.4\n');
+    push(new Uint8Array([37, 226, 227, 207, 211, 10]));
+    obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+    obj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /TrimBox [0 0 ${W} ${H}] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>`);
+    obj(4, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+    obj(5, `<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceCMYK /BitsPerComponent 8${packed ? ' /Filter /FlateDecode' : ''} /Length ${img.length} >>\nstream\n`, img, '\nendstream');
+    obj(6, `<< /Title (${pdfStr(title)}) /Subject (${pdfStr(subject)}) /Creator (Bubby's Light Kit Designer) /Producer (Merkos302) /CreationDate (${when}) >>`);
+    const xref = len;
+    push(`xref\n0 7\n0000000000 65535 f \n${offs.slice(1).map(o => String(o).padStart(10, '0') + ' 00000 n \n').join('')}`);
+    push(`trailer\n<< /Size 7 /Root 1 0 R /Info 6 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
+    return new Blob(parts, { type: 'application/pdf' });
+  }
   async function renderPrintPDF() {
-    const [{ jsPDF }, canvas] = await Promise.all([loadJsPDF(), renderCanvas(Math.round(SHEET_W / 72 * PRINT_DPI))]);
-    const pdf = new jsPDF({ unit: 'pt', format: [SHEET_W, SHEET_H], orientation: 'portrait', compress: true });
-    pdf.setProperties({ title: "Bubby's Light custom candle kit print file", subject: `Print sheet 5.5 x 5.53 in at ${PRINT_DPI} dpi`, creator: "Bubby's Light Kit Designer" });
-    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, SHEET_W, SHEET_H, undefined, 'NONE');
-    return pdf;
+    if (state.mode === 'brs') {
+      const c = await renderFlapCanvas(Math.round(FLAP_W / 72 * PRINT_DPI));
+      return cmykPDF(c, FLAP_W, FLAP_H, "Bubby's Light Brushstroke kit, custom top flap", `Top flap artwork 1.73 x 0.59 in, CMYK, ${PRINT_DPI} dpi`);
+    }
+    const c = await renderCanvas(Math.round(SHEET_W / 72 * PRINT_DPI));
+    return cmykPDF(c, SHEET_W, SHEET_H, "Bubby's Light custom watercolor kit print file", `Print sheet 5.5 x 5.53 in, CMYK, ${PRINT_DPI} dpi`);
   }
   function stamp() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+  function saveBlob(blob, name) {
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
   async function download(base) {
     const btns = [$('#dlProof'), $('#doneDl')];
     btns.forEach(b => { b.disabled = true; b.dataset.t = b.textContent; b.textContent = 'Preparing print file'; });
     try {
       const pdf = await renderPrintPDF();
-      pdf.save(`${base || 'bubbys-light-kit-print-file'}-${stamp()}.pdf`);
+      const kind = state.mode === 'brs' ? 'bubbys-light-top-flap-print-file' : 'bubbys-light-kit-print-file';
+      saveBlob(pdf, `${base || kind}-${stamp()}.pdf`);
     } catch (err) { console.error(err); alert('Sorry, the print file could not be created in this browser.'); }
     finally { btns.forEach(b => { b.disabled = false; b.textContent = b.dataset.t; }); }
   }
@@ -533,6 +620,7 @@ if (BL_EMBED) {
       const qty = currentQty();
       if (!qty || qty < MIN_QTY) missing.push('qtyOther');
       missing.forEach(id => $('#' + id).classList.add('bad'));
+      if (state.mode === 'own' && !$('#idea').value.trim()) { $('#idea').classList.add('bad'); missing.unshift('idea'); }
       if (!$('#approve').checked) missing.push('approve');
       if (missing.length) {
         err.hidden = false;
@@ -540,6 +628,8 @@ if (BL_EMBED) {
           ? `Custom kits start at ${MIN_QTY.toLocaleString()}. Please enter ${MIN_QTY.toLocaleString()} or more, or choose the ready made Brushstroke kit below.`
           : missing.includes('approve') && missing.length === 1
           ? 'Please confirm you will approve a proof before printing.'
+          : missing[0] === 'idea'
+          ? 'Please tell us a little about the design you have in mind.'
           : 'Please fill in the highlighted fields so we can send your proof.';
         const first = $('#' + missing[0]); first && first.focus();
         return;
@@ -549,7 +639,8 @@ if (BL_EMBED) {
       const order = {
         ref, createdAt: d.toISOString(), qty, pricePerKit: pricePerKit(qty), estimatedTotal: Math.round(qty * pricePerKit(qty) * 100) / 100,
         customer: { org: $('#org').value.trim(), name: $('#name').value.trim(), email, phone: $('#phone').value.trim(), address: $('#addr').value.trim(), needBy: $('#needBy').value, notes: $('#notes').value.trim() },
-        design: { template: 'custom-template-logo-ready', color: presetName(), hue: Math.round(state.hue), hueRotation: Math.round(rotation()), saturation: state.sat, layout: state.layout, lettering: state.font, ink: inkColor(), dedication: [state.ded1, state.ded2].filter(Boolean), message: [state.msg1, state.msg2].filter(Boolean), logoFile: state.logoName || null, logoColor: state.logoColor, logoScale: state.logoScale }
+        option: state.mode, optionName: MODES[state.mode].name,
+        design: state.mode === 'own' ? { idea: $('#idea').value.trim(), referenceFiles: state.refFiles } : state.mode === 'brs' ? { template: 'brushstroke-generic-v26', customizes: 'top flap', flapLayout: state.flap, lettering: state.font, ink: inkColor(), message: [state.msg1, state.msg2].filter(Boolean), logoFile: state.logoName || null, logoColor: state.logoColor, logoScale: state.logoScale } : { template: 'custom-template-logo-ready', color: presetName(), hue: Math.round(state.hue), hueRotation: Math.round(rotation()), saturation: state.sat, layout: state.layout, lettering: state.font, ink: inkColor(), dedication: [state.ded1, state.ded2].filter(Boolean), message: [state.msg1, state.msg2].filter(Boolean), logoFile: state.logoName || null, logoColor: state.logoColor, logoScale: state.logoScale }
       };
       const submitBtn = $('button[type=submit]', form);
       submitBtn.disabled = true; submitBtn.textContent = 'Sending';
@@ -571,11 +662,17 @@ if (BL_EMBED) {
   }
   function showDone(o, proof) {
     $('#doneRef').textContent = o.ref;
-    $('#doneImg').src = proof;
+    $('#doneImg').hidden = !proof;
+    if (proof) $('#doneImg').src = proof;
+    $('#doneDl').hidden = o.option === 'own';
+    const d = o.design;
+    const designRows = o.option === 'own'
+      ? [['Your idea', d.idea], ['Reference files', d.referenceFiles.join(', ') || 'None']]
+      : o.option === 'brs'
+      ? [['Top flap', d.message.join(' / ') || 'None'], ['Logo', d.logoFile || 'None']]
+      : [['Color', d.color], ['Dedication', d.dedication.join(' / ') || 'None'], ['Top flap', d.message.join(' / ') || 'None'], ['Logo', d.logoFile || 'None']];
     const rows = [
-      ['Quantity', `${o.qty.toLocaleString()} kits`], ['Estimated total', `${money(o.estimatedTotal)} at ${cents(o.pricePerKit)} per kit`], ['Freight', 'Included'], ['Deposit on approval', `${money(Math.round(o.estimatedTotal * 20) / 100)} (20%)`], ['For', o.customer.org], ['Color', o.design.color],
-      ['Dedication', o.design.dedication.join(' / ') || 'None'], ['Top flap', o.design.message.join(' / ') || 'None'],
-      ['Logo', o.design.logoFile || 'None'], ['Proof to', o.customer.email]
+      ['Design option', o.optionName], ['Quantity', `${o.qty.toLocaleString()} kits`], ['Estimated total', `${money(o.estimatedTotal)} at ${cents(o.pricePerKit)} per kit`], ['Freight', 'Included'], ['Deposit on approval', `${money(Math.round(o.estimatedTotal * 20) / 100)} (20%)`], ['For', o.customer.org], ...designRows, ['Proof to', o.customer.email]
     ];
     const dl = $('#doneSum'); dl.innerHTML = '';
     rows.forEach(([k, v]) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; dl.append(dt, dd); });
@@ -595,17 +692,59 @@ if (BL_EMBED) {
     });
   }
 
+  /* ---------- design options ---------- */
+  function setMode(mode, scroll) {
+    state.mode = mode;
+    $$('.opt-card').forEach(c => c.setAttribute('aria-checked', String(c.dataset.mode === mode)));
+    const steps = MODES[mode].steps;
+    ['step-idea', 'step-color', 'step-logo', 'step-words', 'step-order'].forEach(id => { $('#' + id).hidden = !steps.includes(id); });
+    steps.forEach((id, i) => { const n = $('#' + id + ' [data-n]'); if (n) n.textContent = i + 1; });
+    const brs = mode === 'brs', own = mode === 'own';
+    $('#stageHead').hidden = mode !== 'pink';
+    $('#viewport').hidden = mode !== 'pink';
+    $('#brsStage').hidden = !brs;
+    $('#ownStage').hidden = !own;
+    $('#stageNote').hidden = mode !== 'pink';
+    $('#flapLayoutRow').hidden = !brs;
+    $('#frontLayoutRow').hidden = brs;
+    $('#dedField').hidden = brs;
+    $('#wordsTitle').textContent = brs ? 'Add your top flap words' : 'Add your words';
+    $('#msgLabel').textContent = brs ? 'Words on the top flap, such as a dedication' : 'Message, top flap';
+    $('#msg1').placeholder = brs ? 'In loving memory of' : 'Chabad of Your City';
+    $('#msg2').placeholder = brs ? 'Second line, optional' : 'Second line, optional';
+    $('#dlProof').hidden = own;
+    $('#dlProof').textContent = brs ? 'Download top flap file (PDF)' : 'Download print file (PDF)';
+    $('#doneDl').textContent = $('#dlProof').textContent;
+    $('#dlNote').textContent = own
+      ? "Bubby's Light will design your kit and email you a proof to approve before anything prints."
+      : brs
+      ? 'The top flap file is a CMYK PDF at actual size, 1.73 by 0.59 inches, at 600 dpi. Bubby\'s Light places it on the Brushstroke kit.'
+      : "The print file is a CMYK PDF at the kit's actual size, 5.5 by 5.53 inches, at 600 dpi.";
+    $('#notes').placeholder = own ? 'Anything else we should know' : 'Anything we should know';
+    render();
+    if (scroll) $('#studio').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function bindModes() {
+    $$('.opt-card').forEach(c => c.addEventListener('click', () => setMode(c.dataset.mode, true)));
+    const f = $('#refFiles');
+    f.addEventListener('change', () => {
+      state.refFiles = Array.from(f.files).map(x => x.name);
+      $('#refList').hidden = !state.refFiles.length;
+      $('#refList').textContent = state.refFiles.length ? 'Added: ' + state.refFiles.join(', ') : '';
+    });
+  }
+
   /* ---------- init ---------- */
   async function init() {
     buildPresets(); buildInks(); buildQty(); buildGallery();
-    bindWheel(); bindLogo(); bindText(); bindBox(); bindView(); bindOrder();
-    seg('layoutSeg', 'layout'); seg('fontSeg', 'font'); seg('logoColorSeg', 'logoColor');
+    bindWheel(); bindLogo(); bindText(); bindBox(); bindView(); bindOrder(); bindModes();
+    seg('layoutSeg', 'layout'); seg('fontSeg', 'font'); seg('logoColorSeg', 'logoColor'); seg('flapSeg', 'flap');
     $('#flat').style.cssText = 'position:absolute;width:10px;height:10px;opacity:0;pointer-events:none;overflow:hidden;';
     $('#flat').hidden = false;
     try {
       await Promise.all([loadTemplate(), document.fonts.load('italic 500 12px Lora'), document.fonts.load('500 12px Lora'), document.fonts.load('500 12px "Frank Ruhl Libre"', 'אב')]);
     } catch (e) { console.error(e); }
-    render();
+    setMode('pink');
     $('#loading').hidden = true;
   }
   init();
