@@ -36,7 +36,10 @@
 
   <section class="ready wrap" aria-labelledby="readyTitle">
     <div class="ready-card">
-      <img src="assets/gallery/08-generic-v26.jpg" width="549" height="640" alt="Brushstroke Neshek Kit box" >
+      <div class="ready-pics">
+        <button type="button" class="zoomable" data-zoom="assets/brushstroke/front.jpg" data-alt="Front of the Brushstroke Neshek Kit"><img src="assets/gallery/brushstroke-front.png" width="560" height="995" alt="Front of the Brushstroke Neshek Kit"><span>Front</span></button>
+        <button type="button" class="zoomable" data-zoom="assets/brushstroke/back.jpg" data-alt="Back of the Brushstroke Neshek Kit with the candle lighting instructions and brachos"><img src="assets/gallery/brushstroke-back.png" width="560" height="995" alt="Back of the Brushstroke Neshek Kit"><span>Back, brachos</span></button>
+      </div>
       <div class="ready-body">
         <p class="eyebrow">Ready to order</p>
         <h2 id="readyTitle">Brushstroke Neshek Kit, ready made</h2>
@@ -45,7 +48,8 @@
           <div><span>Box of 100 kits</span><strong>$48.00</strong><small>48¢ per kit</small></div>
           <div><span>Case of 400 kits</span><strong>$184.00</strong><small>46¢ per kit</small></div>
         </div>
-        <p class="price-note">Prices are before tax. <b>Freight:</b> UPS Ground, calculated at checkout for your address.</p>
+        <p class="price-note">Prices are before tax. <b>Shipping:</b> UPS Ground, calculated separately at checkout for your address.</p>
+        <p class="hint ready-zoom">Tap the front or back to see it full size.</p>
       </div>
     </div>
   </section>
@@ -58,17 +62,17 @@
       <button type="button" class="opt-card" role="radio" aria-checked="true" data-mode="pink">
         <img src="assets/gallery/09-custom-template.jpg" width="549" height="640" alt="">
         <span class="opt-num">Option 1</span>
-        <strong>Watercolor kit, fully custom</strong>
-        <span class="opt-desc">Change the colors with the color wheel, add your logo, a dedication and a top flap message. Download a print ready CMYK file.</span>
+        <strong>Pink floral custom template</strong>
+        <span class="opt-desc">Change the colors with the color wheel, and add your logo, a dedication and a top flap message.</span>
       </button>
       <button type="button" class="opt-card" role="radio" aria-checked="false" data-mode="brs">
         <img src="assets/gallery/08-generic-v26.jpg" width="549" height="640" alt="">
         <span class="opt-num">Option 2</span>
-        <strong>Brushstroke kit, custom top flap</strong>
+        <strong>Brushstroke custom template</strong>
         <span class="opt-desc">Keep the Brushstroke design and make the empty top flap yours, with your logo, a dedication or any words you like.</span>
       </button>
       <button type="button" class="opt-card" role="radio" aria-checked="false" data-mode="own">
-        <img src="assets/gallery/04-yeshiva-flatbush.jpg" width="549" height="640" alt="">
+        <img src="assets/gallery/your-design.jpg" width="549" height="640" alt="">
         <span class="opt-num">Option 3</span>
         <strong>Your own unique design</strong>
         <span class="opt-desc">Want something completely different? Share your idea and Bubby's Light will create a one of a kind kit with you.</span>
@@ -123,28 +127,43 @@
                 </g>
               </g>
             </svg>
-          </div>
-          <div class="loading" id="loading"><span></span>Loading your kit</div>
-        </div>
-        <div class="alt-stage" id="brsStage" hidden>
-          <img class="brs-box" src="assets/gallery/brushstroke-front.png" width="560" height="995" alt="Brushstroke Neshek Kit box">
-          <div class="flap-wrap">
-            <p class="opt-label">Your top flap</p>
-            <div class="flap-box">
-            <svg id="flap" viewBox="0 0 124.3 42.4" role="img" aria-label="Preview of your custom top flap">
+            <svg id="kitBrs" viewBox="0 0 396 398.16" role="img" aria-label="Flat layout of the Brushstroke kit with your top flap">
               <defs>
                 <filter id="flapMono" color-interpolation-filters="sRGB"><feFlood id="flapMonoColor" flood-color="#934253"/><feComposite in2="SourceAlpha" operator="in"/></filter>
                 <clipPath id="flapLogoClip"><rect id="flapLogoClipRect" x="0" y="0" width="0" height="0"/></clipPath>
                 <radialGradient id="flapBg" cx="50%" cy="45%" r="75%"><stop offset="0" stop-color="#faeee6"/><stop offset="1" stop-color="#f3dccf"/></radialGradient>
               </defs>
-              <rect id="flapBgRect" width="124.3" height="42.4" fill="url(#flapBg)"/>
-              <text id="fMsg1" text-anchor="middle"></text>
-              <text id="fMsg2" text-anchor="middle"></text>
-              <g clip-path="url(#flapLogoClip)"><image id="flapLogo" preserveAspectRatio="xMidYMid meet"/></g>
+              <g id="brsComposite">
+                <g class="brs-blank" fill="#f6e6dc" stroke="#cdbdb4" stroke-width=".4">
+                  <path d="M52.3 40.3 V22 Q52.3 8 66 8 H162.9 Q176.6 8 176.6 22 V40.3 Z"/>
+                  <path d="M176.6 82.7 V70 Q176.6 60 186 60 H209.6 Q219 60 219 70 V82.7 Z"/>
+                  <path d="M9.8 82.7 V70 Q9.8 60 19.2 60 H42.8 Q52.2 60 52.2 70 V82.7 Z"/>
+                  <rect x="52.3" y="314.8" width="124.3" height="42.4"/>
+                  <path d="M52.3 357.2 V372 Q52.3 386 66 386 H162.9 Q176.6 386 176.6 372 V357.2 Z"/>
+                  <path d="M176.6 314.8 V327 Q176.6 337 186 337 H209.6 Q219 337 219 327 V314.8 Z"/>
+                  <path d="M9.8 314.8 V327 Q9.8 337 19.2 337 H42.8 Q52.2 337 52.2 327 V314.8 Z"/>
+                  <path d="M343.3 90 L360 100 V297 L343.3 307 Z"/>
+                </g>
+                <image href="assets/brushstroke/left.jpg" x="9.8" y="82.7" width="42.5" height="232.1" preserveAspectRatio="none"/>
+                <image href="assets/brushstroke/front.jpg" x="52.3" y="82.7" width="124.4" height="232.1" preserveAspectRatio="none"/>
+                <image href="assets/brushstroke/right.jpg" x="176.6" y="82.7" width="42.5" height="232.1" preserveAspectRatio="none"/>
+                <image href="assets/brushstroke/back.jpg" x="219" y="82.7" width="124.3" height="232.1" preserveAspectRatio="none"/>
+                <rect id="flapBgRect" x="52.3" y="40.3" width="124.3" height="42.4" fill="url(#flapBg)"/>
+                <g id="flapContent" transform="translate(52.3 40.3)">
+                  <text id="fMsg1" text-anchor="middle"></text>
+                  <text id="fMsg2" text-anchor="middle"></text>
+                  <g clip-path="url(#flapLogoClip)"><image id="flapLogo" preserveAspectRatio="xMidYMid meet"/></g>
+                </g>
+              </g>
             </svg>
+          </div>
+          <div class="loading" id="loading"><span></span>Loading your kit</div>
+        </div>
+        <div class="flap-strip" id="brsStage" hidden>
+          <p class="opt-label">Your top flap, close up</p>
+          <div class="flap-box">
+            <svg id="flapView" viewBox="52.3 40.3 124.3 42.4" role="img" aria-label="Close up of your custom top flap"><use href="#brsComposite"/></svg>
             <p class="flap-empty" id="flapEmpty">Your logo and words appear here</p>
-            </div>
-            <p class="flap-size">Top flap, 1.73 by 0.59 inches</p>
           </div>
         </div>
         <div class="alt-stage" id="ownStage" hidden>
@@ -266,7 +285,8 @@
               <input id="qtyOther" type="number" min="10000" step="1000" placeholder="Enter a quantity, 10,000 or more" hidden>
             </div>
             <div class="price-est" id="priceEst" aria-live="polite"></div>
-            <p class="price-note">Prices are before tax and include freight. A 20% deposit is required with every approved order.</p>
+            <p class="price-note">Prices are estimates before tax and include shipping. They are approximate because the exact shipping cost and any tariffs depend on your delivery address. A 50% deposit is required with every approved order.</p>
+            <p class="lead-time"><b>Please allow 3 to 5 months for delivery.</b> Most orders arrive sooner.</p>
             <div class="grid2">
               <div class="field"><label for="org">Chabad house or school</label><input id="org" required autocomplete="organization"></div>
               <div class="field"><label for="name">Your name</label><input id="name" required autocomplete="name"></div>
@@ -280,10 +300,9 @@
             </div>
             <label class="check approve"><input type="checkbox" id="approve" required> I understand Bubby's Light will email me a final proof, and printing starts only after I approve it.</label>
             <p class="form-err" id="formErr" role="alert" hidden></p>
-            <p class="hint dl-note" id="dlNote">The print file is a CMYK PDF at the kit's actual size, 5.5 by 5.53 inches, at 600 dpi.</p>
+            <p class="hint dl-note" id="dlNote">Your finished design file is sent with your order request.</p>
             <div class="actions">
               <button class="primary" type="submit">Send my order request</button>
-              <button class="ghost" type="button" id="dlProof">Download print file (PDF)</button>
             </div>
           </form>
         </li>
@@ -295,9 +314,9 @@
     <h2 id="howTitle">How it works</h2>
     <ol class="how-grid">
       <li><span>1</span><h3>Choose your option</h3><p>Design your kit right here, customize the Brushstroke top flap, or share an idea for your own unique design.</p></li>
-      <li><span>2</span><h3>Get your proof</h3><p>Bubby's Light refines the layout and emails you a print proof.</p></li>
-      <li><span>3</span><h3>Approve and pay your deposit</h3><p>Approve your proof and pay a 20% deposit. Then printing begins.</p></li>
-      <li><span>4</span><h3>Kits arrive packed</h3><p>Every kit comes ready with 2 tealights, ready for mivtzoim.</p></li>
+      <li><span>2</span><h3>Get your proof</h3><p>Your design file comes with your request. Bubby's Light refines the layout and emails you a print proof.</p></li>
+      <li><span>3</span><h3>Approve and pay your deposit</h3><p>Approve your proof and pay a 50% deposit. Then printing begins.</p></li>
+      <li><span>4</span><h3>Kits arrive packed</h3><p>Please allow 3 to 5 months for delivery of custom orders. Most arrive sooner. Every kit comes ready with 2 tealights.</p></li>
     </ol>
   </section>
 
@@ -330,11 +349,17 @@
     <p class="ref">Reference <strong id="doneRef"></strong></p>
     <img id="doneImg" alt="Your kit design">
     <dl class="sum" id="doneSum"></dl>
-    <p>You will receive a print proof by email. Once you approve it, a 20% deposit is required and printing begins.</p>
+    <p>Your design file is on its way with your request. You will receive a print proof by email. Once you approve it, a 50% deposit is required and printing begins. Please allow 3 to 5 months for delivery. Most orders arrive sooner.</p>
     <div class="actions">
-      <button class="primary" type="button" id="doneDl">Download print file (PDF)</button>
-      <button class="ghost" type="button" id="doneClose">Back to designer</button>
+      <button class="primary" type="button" id="doneClose">Back to designer</button>
     </div>
+  </div>
+</div>
+
+<div class="modal" id="zoom" hidden role="dialog" aria-modal="true" aria-label="Full size kit panel">
+  <div class="zoom-card">
+    <img id="zoomImg" alt="">
+    <button class="primary" type="button" id="zoomClose">Close</button>
   </div>
 </div>
 

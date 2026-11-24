@@ -53,6 +53,8 @@ if (BL_EMBED) {
 
   const QTYS = [10000, 15000, 20000, 'other'];
   const MIN_QTY = 10000;
+  const DEPOSIT_PCT = 50; // percent of the order due once the proof is approved
+  const LEAD_TIME = 'Please allow 3 to 5 months for delivery. Most orders arrive sooner.';
   // customer prices per kit, shipping included, before tax (Bubby's Light proposal, Nov 2026)
   function pricePerKit(q) { return q >= 20000 ? 0.44 : q >= 15000 ? 0.45 : 0.46; }
   const money = n => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
@@ -80,7 +82,7 @@ if (BL_EMBED) {
     layout: 'both', font: 'lora-i', ink: 'match',
     logo: null, logoName: '', logoRaw: null, logoIsSvg: false, logoColor: 'original', knock: false, logoScale: 1,
     ded1: '', ded2: '', msg1: '', msg2: '', qty: 10000,
-    mode: 'pink', flap: 'both', refFiles: []
+    mode: 'pink', flap: 'both', refFiles: [], refData: []
   };
   const BRS_INK = '#934253'; // Brushstroke headline rose, sampled from the kit
   const FLAP_W = 124.3, FLAP_H = 42.4; // top flap face in points (1.73 x 0.59 in)
@@ -90,8 +92,8 @@ if (BL_EMBED) {
     words: { text: { x: 5, y: 4, w: 114.3, h: 34.4 } }
   };
   const MODES = {
-    pink: { name: 'Watercolor kit, fully custom', steps: ['step-color', 'step-logo', 'step-words', 'step-order'] },
-    brs:  { name: 'Brushstroke kit, custom top flap', steps: ['step-logo', 'step-words', 'step-order'] },
+    pink: { name: 'Pink floral custom template', steps: ['step-color', 'step-logo', 'step-words', 'step-order'] },
+    brs:  { name: 'Brushstroke custom template', steps: ['step-logo', 'step-words', 'step-order'] },
     own:  { name: 'Your own unique design', steps: ['step-idea', 'step-order'] }
   };
 
@@ -427,21 +429,27 @@ if (BL_EMBED) {
     vp.addEventListener('pointermove', e => {
       if (!drag) return;
       ry = sry + (e.clientX - sx) * 0.5;
-      rx = Math.max(-25, Math.min(40, srx - (e.clientY - sy) * 0.3));
+      rx = Math.max(-70, Math.min(40, srx - (e.clientY - sy) * 0.3));
       set();
     });
     const end = () => { drag = false; vp.classList.remove('dragging'); };
     vp.addEventListener('pointerup', end); vp.addEventListener('pointercancel', end);
-    const stops = [-32, -118, -212, 58];
+    const stops = [[-32, -22], [-118, -22], [-212, -22], [58, -22], [-20, -64]];
     let si = 0;
     $('#spinBtn').addEventListener('click', () => {
       si = (si + 1) % stops.length;
-      const target = stops[si];
-      ry = ry + (((target - ry) % 360) + 540) % 360 - 180; rx = -22; set();
+      const [target, tx] = stops[si];
+      ry = ry + (((target - ry) % 360) + 540) % 360 - 180; rx = tx; set();
     });
     set();
   }
   let view = 'box';
+  function setNote() {
+    const brs = state.mode === 'brs';
+    $('#stageNote').textContent = view === 'box'
+      ? (brs ? 'Drag to turn the box, or tap Turn box to see the top flap with your logo and words.' : "Drag to turn the box. The print layout shows every panel flat, as Bubby's Light prints it.")
+      : (brs ? 'Flat layout of the Brushstroke kit with your custom top flap.' : 'Flat print layout with all panels. Fold lines are shown in fine gray.');
+  }
   function bindView() {
     $$('[data-view]').forEach(b => b.addEventListener('click', () => {
       view = b.dataset.view;
@@ -450,9 +458,7 @@ if (BL_EMBED) {
       $('#flat').classList.toggle('offstage', view !== 'flat');
       $('#flat').style.cssText = view === 'flat' ? '' : 'position:absolute;width:10px;height:10px;opacity:0;pointer-events:none;overflow:hidden;';
       $('#spinBtn').style.visibility = view === 'box' ? '' : 'hidden';
-      $('#stageNote').textContent = view === 'box'
-        ? "Drag to turn the box. The print layout shows every panel flat, as Bubby's Light prints it."
-        : 'Flat print layout with all panels. Fold lines are shown in fine gray.';
+      setNote();
     }));
   }
 
@@ -474,7 +480,7 @@ if (BL_EMBED) {
   }
   const SHEET_W = 396, SHEET_H = 398.16; // points, actual print sheet size (5.5 x 5.53 in)
   async function svgToCanvas(svgEl, width, height, bg) {
-    const svg = svgEl.cloneNode(true);
+    const svg = svgEl.isConnected ? svgEl.cloneNode(true) : svgEl;
     svg.setAttribute('xmlns', NS);
     svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
     svg.setAttribute('width', width);
@@ -496,7 +502,14 @@ if (BL_EMBED) {
     } finally { URL.revokeObjectURL(url); }
   }
   const renderCanvas = width => svgToCanvas($('#kit'), width, Math.round(width * SHEET_H / SHEET_W));
-  const renderFlapCanvas = width => svgToCanvas($('#flap'), width, Math.round(width * FLAP_H / FLAP_W), '#f6e4d9');
+  function flapSvg() {
+    const svg = $('#kitBrs').cloneNode(true);
+    svg.setAttribute('viewBox', `52.3 40.3 ${FLAP_W} ${FLAP_H}`);
+    svg.removeAttribute('hidden');
+    svg.querySelectorAll('#brsComposite > image, .brs-blank').forEach(n => n.remove());
+    return svg;
+  }
+  const renderFlapCanvas = width => svgToCanvas(flapSvg(), width, Math.round(width * FLAP_H / FLAP_W), '#f6e4d9');
   async function renderPNG(width = 2400) {
     if (state.mode === 'own') return null;
     const c = state.mode === 'brs' ? await renderFlapCanvas(width) : await renderCanvas(width);
@@ -561,21 +574,15 @@ if (BL_EMBED) {
     return cmykPDF(c, SHEET_W, SHEET_H, "Bubby's Light custom watercolor kit print file", `Print sheet 5.5 x 5.53 in, CMYK, ${PRINT_DPI} dpi`);
   }
   function stamp() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
-  function saveBlob(blob, name) {
-    const url = URL.createObjectURL(blob), a = document.createElement('a');
-    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  const blobToDataURL = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+  // The finished design file that travels with the order request (not offered to the buyer)
+  async function designFile(ref) {
+    if (state.mode === 'own') return null;
+    const pdf = await renderPrintPDF();
+    const kind = state.mode === 'brs' ? 'brushstroke-top-flap' : 'pink-floral-kit';
+    return { name: `${ref}-${kind}-print-file-${stamp()}.pdf`, type: 'application/pdf', size: pdf.size, data: await blobToDataURL(pdf) };
   }
-  async function download(base) {
-    const btns = [$('#dlProof'), $('#doneDl')];
-    btns.forEach(b => { b.disabled = true; b.dataset.t = b.textContent; b.textContent = 'Preparing print file'; });
-    try {
-      const pdf = await renderPrintPDF();
-      const kind = state.mode === 'brs' ? 'bubbys-light-top-flap-print-file' : 'bubbys-light-kit-print-file';
-      saveBlob(pdf, `${base || kind}-${stamp()}.pdf`);
-    } catch (err) { console.error(err); alert('Sorry, the print file could not be created in this browser.'); }
-    finally { btns.forEach(b => { b.disabled = false; b.textContent = b.dataset.t; }); }
-  }
+  window.blDesignFile = designFile;
   window.blRenderPrintPDF = renderPrintPDF;
 
   /* ---------- order ---------- */
@@ -587,7 +594,7 @@ if (BL_EMBED) {
       return;
     }
     const p = pricePerKit(q);
-    el.innerHTML = `<span>Estimated total</span><strong>${money(q * p)}</strong><span>${q.toLocaleString()} kits at ${cents(p)} per kit</span><span class="freight"><b>Freight:</b> included, delivered to your door<br><b>20% deposit on approval:</b> ${money(Math.round(q * p * 20) / 100)}</span>`;
+    el.innerHTML = `<span>Estimated total, approximate</span><strong>${money(q * p)}</strong><span>${q.toLocaleString()} kits at ${cents(p)} per kit</span><span class="freight"><b>Shipping:</b> included, approximate for your address<br><b>${DEPOSIT_PCT}% deposit on approval:</b> ${money(Math.round(q * p * DEPOSIT_PCT) / 100)}</span>`;
   }
   function buildQty() {
     const g = $('#qtyGrid');
@@ -646,8 +653,12 @@ if (BL_EMBED) {
       submitBtn.disabled = true; submitBtn.textContent = 'Sending';
       try {
         const proof = await renderPNG(1400);
+        const file = await designFile(ref);
+        order.designFile = file ? { name: file.name, type: file.type, size: file.size } : null;
+        const payload = { ...order, designFileData: file && file.data, proofPng: proof, logoData: state.mode === 'own' ? null : state.logo, referenceFiles: state.mode === 'own' ? state.refData : [] };
+        window.lastOrderPayload = payload;
         if (ORDER_ENDPOINT) {
-          const r = await fetch(ORDER_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...order, proofPng: proof, logoData: state.logo }) });
+          const r = await fetch(ORDER_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
           if (!r.ok) throw new Error('Order endpoint returned ' + r.status);
         } else {
           (window.blOrders = window.blOrders || []).push(order);
@@ -658,13 +669,11 @@ if (BL_EMBED) {
         console.error(ex); err.hidden = false; err.textContent = 'Something went wrong sending your request. Please try again, or email Bubbyslight@gmail.com.';
       } finally { submitBtn.disabled = false; submitBtn.textContent = 'Send my order request'; }
     });
-    $('#dlProof').addEventListener('click', () => download());
   }
   function showDone(o, proof) {
     $('#doneRef').textContent = o.ref;
     $('#doneImg').hidden = !proof;
     if (proof) $('#doneImg').src = proof;
-    $('#doneDl').hidden = o.option === 'own';
     const d = o.design;
     const designRows = o.option === 'own'
       ? [['Your idea', d.idea], ['Reference files', d.referenceFiles.join(', ') || 'None']]
@@ -672,14 +681,13 @@ if (BL_EMBED) {
       ? [['Top flap', d.message.join(' / ') || 'None'], ['Logo', d.logoFile || 'None']]
       : [['Color', d.color], ['Dedication', d.dedication.join(' / ') || 'None'], ['Top flap', d.message.join(' / ') || 'None'], ['Logo', d.logoFile || 'None']];
     const rows = [
-      ['Design option', o.optionName], ['Quantity', `${o.qty.toLocaleString()} kits`], ['Estimated total', `${money(o.estimatedTotal)} at ${cents(o.pricePerKit)} per kit`], ['Freight', 'Included'], ['Deposit on approval', `${money(Math.round(o.estimatedTotal * 20) / 100)} (20%)`], ['For', o.customer.org], ...designRows, ['Proof to', o.customer.email]
+      ['Design option', o.optionName], ['Quantity', `${o.qty.toLocaleString()} kits`], ['Estimated total', `About ${money(o.estimatedTotal)} at ${cents(o.pricePerKit)} per kit`], ['Shipping', 'Included, approximate for your address'], ['Deposit on approval', `${money(Math.round(o.estimatedTotal * DEPOSIT_PCT) / 100)} (${DEPOSIT_PCT}%)`], ['Delivery', '3 to 5 months, most orders arrive sooner'], ['For', o.customer.org], ...designRows, ['Design file', o.designFile ? 'Sent with your request' : 'Bubby\'s Light will create it'], ['Proof to', o.customer.email]
     ];
     const dl = $('#doneSum'); dl.innerHTML = '';
     rows.forEach(([k, v]) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; dl.append(dt, dd); });
     $('#done').hidden = false; blModal(true); $('#doneClose').focus();
   }
   $('#doneClose').addEventListener('click', () => { $('#done').hidden = true; blModal(false); });
-  $('#doneDl').addEventListener('click', () => download(`${$('#doneRef').textContent}-print-file`));
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#done').hidden) { $('#done').hidden = true; blModal(false); } });
 
   /* ---------- gallery ---------- */
@@ -700,11 +708,15 @@ if (BL_EMBED) {
     ['step-idea', 'step-color', 'step-logo', 'step-words', 'step-order'].forEach(id => { $('#' + id).hidden = !steps.includes(id); });
     steps.forEach((id, i) => { const n = $('#' + id + ' [data-n]'); if (n) n.textContent = i + 1; });
     const brs = mode === 'brs', own = mode === 'own';
-    $('#stageHead').hidden = mode !== 'pink';
-    $('#viewport').hidden = mode !== 'pink';
+    $('#stageHead').hidden = own;
+    $('#viewport').hidden = own;
     $('#brsStage').hidden = !brs;
     $('#ownStage').hidden = !own;
-    $('#stageNote').hidden = mode !== 'pink';
+    $('#stageNote').hidden = own;
+    $$('#box use').forEach(u => u.setAttribute('href', brs ? '#brsComposite' : '#kitComposite'));
+    $('#kit').style.display = brs ? 'none' : '';
+    $('#kitBrs').style.display = brs ? '' : 'none';
+    setNote();
     $('#flapLayoutRow').hidden = !brs;
     $('#frontLayoutRow').hidden = brs;
     $('#dedField').hidden = brs;
@@ -712,14 +724,7 @@ if (BL_EMBED) {
     $('#msgLabel').textContent = brs ? 'Words on the top flap, such as a dedication' : 'Message, top flap';
     $('#msg1').placeholder = brs ? 'In loving memory of' : 'Chabad of Your City';
     $('#msg2').placeholder = brs ? 'Second line, optional' : 'Second line, optional';
-    $('#dlProof').hidden = own;
-    $('#dlProof').textContent = brs ? 'Download top flap file (PDF)' : 'Download print file (PDF)';
-    $('#doneDl').textContent = $('#dlProof').textContent;
-    $('#dlNote').textContent = own
-      ? "Bubby's Light will design your kit and email you a proof to approve before anything prints."
-      : brs
-      ? 'The top flap file is a CMYK PDF at actual size, 1.73 by 0.59 inches, at 600 dpi. Bubby\'s Light places it on the Brushstroke kit.'
-      : "The print file is a CMYK PDF at the kit's actual size, 5.5 by 5.53 inches, at 600 dpi.";
+    $('#dlNote').textContent = own ? 'Your idea and reference files are sent with your order request.' : 'Your finished design file is sent with your order request.';
     $('#notes').placeholder = own ? 'Anything else we should know' : 'Anything we should know';
     render();
     if (scroll) $('#studio').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -728,16 +733,30 @@ if (BL_EMBED) {
     $$('.opt-card').forEach(c => c.addEventListener('click', () => setMode(c.dataset.mode, true)));
     const f = $('#refFiles');
     f.addEventListener('change', () => {
-      state.refFiles = Array.from(f.files).map(x => x.name);
+      const files = Array.from(f.files);
+      state.refFiles = files.map(x => x.name);
+      state.refData = [];
+      files.forEach(x => { if (x.size > 15e6) return; const r = new FileReader(); r.onload = () => state.refData.push({ name: x.name, type: x.type, data: r.result }); r.readAsDataURL(x); });
       $('#refList').hidden = !state.refFiles.length;
       $('#refList').textContent = state.refFiles.length ? 'Added: ' + state.refFiles.join(', ') : '';
     });
   }
 
+  function bindZoom() {
+    const z = $('#zoom'), close = () => { z.hidden = true; blModal(false); };
+    $$('.zoomable').forEach(b => b.addEventListener('click', () => {
+      $('#zoomImg').src = b.dataset.zoom; $('#zoomImg').alt = b.dataset.alt;
+      z.hidden = false; blModal(true); $('#zoomClose').focus();
+    }));
+    $('#zoomClose').addEventListener('click', close);
+    z.addEventListener('click', e => { if (e.target === z) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !z.hidden) close(); });
+  }
+
   /* ---------- init ---------- */
   async function init() {
     buildPresets(); buildInks(); buildQty(); buildGallery();
-    bindWheel(); bindLogo(); bindText(); bindBox(); bindView(); bindOrder(); bindModes();
+    bindWheel(); bindLogo(); bindText(); bindBox(); bindView(); bindOrder(); bindModes(); bindZoom();
     seg('layoutSeg', 'layout'); seg('fontSeg', 'font'); seg('logoColorSeg', 'logoColor'); seg('flapSeg', 'flap');
     $('#flat').style.cssText = 'position:absolute;width:10px;height:10px;opacity:0;pointer-events:none;overflow:hidden;';
     $('#flat').hidden = false;
