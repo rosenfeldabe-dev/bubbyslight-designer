@@ -127,11 +127,13 @@
               <defs>
                 <filter id="flapMono" color-interpolation-filters="sRGB"><feFlood id="flapMonoColor" flood-color="#934253"/><feComposite in2="SourceAlpha" operator="in"/></filter>
                 <clipPath id="flapLogoClip"><rect id="flapLogoClipRect" x="0" y="0" width="0" height="0"/></clipPath>
+                <filter id="flapWashBlur" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="2.6"/></filter>
                 <radialGradient id="flapBg" cx="50%" cy="45%" r="75%"><stop offset="0" stop-color="#faeee6"/><stop offset="1" stop-color="#f3dccf"/></radialGradient>
               </defs>
               <g id="brsComposite">
                 <image id="brsFlat" href="assets/brushstroke/flat-web.jpg" x="0" y="0" width="396" height="398.16" preserveAspectRatio="none"/>
                 <g id="flapContent" transform="translate(52.3 40.3)">
+                  <rect id="flapWash" fill="#fcf3ec" opacity="0.9" rx="5" filter="url(#flapWashBlur)" width="0" height="0"/>
                   <text id="fMsg1" text-anchor="middle"></text>
                   <text id="fMsg2" text-anchor="middle"></text>
                   <g clip-path="url(#flapLogoClip)"><image id="flapLogo" preserveAspectRatio="xMidYMid meet"/></g>
@@ -220,6 +222,7 @@
               <button type="button" aria-pressed="false" data-v="logo">Logo only</button>
               <button type="button" aria-pressed="false" data-v="words">Words only</button>
             </div>
+            <label class="check wash-check"><input type="checkbox" id="flapWashToggle" checked> Soft light background behind the words, easier to read over the brushstrokes</label>
           </div>
           <div class="opt-row layout-row" id="frontLayoutRow">
             <span class="opt-label">Front layout</span>

@@ -286,3 +286,5 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:url(assets/
 .ready-card .zoomable img{max-width:none;margin:0}
 
 .soon{margin:10px 0 0;padding:9px 12px;border-radius:10px;background:#fbe9ef;border:1px solid #efc6d4;color:#7a2448;font-size:14px;line-height:1.45}
+
+.wash-check{flex-basis:100%;margin-top:8px;font-size:13px}

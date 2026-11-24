@@ -82,7 +82,7 @@ if (BL_EMBED) {
     layout: 'both', font: 'lora-i', ink: 'match',
     logo: null, logoName: '', logoRaw: null, logoIsSvg: false, logoColor: 'original', knock: false, logoScale: 1,
     ded1: '', ded2: '', msg1: '', msg2: '', qty: 10000,
-    mode: 'pink', flap: 'both', refFiles: [], refData: []
+    mode: 'pink', flap: 'both', wash: true, refFiles: [], refData: []
   };
   const BRS_INK = '#934253'; // Brushstroke headline rose, sampled from the kit
   const FLAP_W = 124.3, FLAP_H = 42.4; // top flap face in points (1.73 x 0.59 in)
@@ -255,6 +255,13 @@ if (BL_EMBED) {
     if (z.text) {
       layoutLines([state.msg1, state.msg2], z.text, state.flap === 'words' ? 13 : 9, state.flap === 'words' ? 10.5 : 6.6, [t1, t2]);
     } else { t1.textContent = ''; t2.textContent = ''; }
+    const wash = $('#flapWash');
+    if (z.text && state.wash && (state.msg1 || state.msg2)) {
+      const tz = z.text, n = [state.msg1, state.msg2].filter(Boolean).length;
+      const lens = [t1, t2].map(t => { try { return t.textContent ? t.getComputedTextLength() : 0; } catch { return 0; } });
+      const lm = Math.max(...lens), w = lm > 0 ? Math.min(tz.w + 2, lm * 1.15 + 22) : tz.w, hh = tz.h * (n === 1 ? 0.75 : 1) + 4;
+      [['x', tz.x + (tz.w - w) / 2], ['y', tz.y + (tz.h - hh) / 2], ['width', w], ['height', hh]].forEach(([k, v]) => wash.setAttribute(k, v.toFixed(2)));
+    } else { wash.setAttribute('width', 0); wash.setAttribute('height', 0); }
     const img = $('#flapLogo');
     if (z.logo && state.logo) {
       const lz = z.logo, sc = state.logoScale, w = lz.w * sc, h = lz.h * sc;
@@ -660,7 +667,7 @@ if (BL_EMBED) {
         ref, createdAt: d.toISOString(), qty, pricePerKit: pricePerKit(qty), estimatedTotal: Math.round(qty * pricePerKit(qty) * 100) / 100,
         customer: { org: $('#org').value.trim(), name: $('#name').value.trim(), email, phone: $('#phone').value.trim(), address: $('#addr').value.trim(), needBy: $('#needBy').value, notes: $('#notes').value.trim() },
         option: state.mode, optionName: MODES[state.mode].name,
-        design: state.mode === 'own' ? { idea: $('#idea').value.trim(), referenceFiles: state.refFiles } : state.mode === 'brs' ? { template: 'brushstroke-generic-v26', customizes: 'top flap', flapLayout: state.flap, lettering: state.font, ink: inkColor(), message: [state.msg1, state.msg2].filter(Boolean), logoFile: state.logoName || null, logoColor: state.logoColor, logoScale: state.logoScale } : { template: 'custom-template-logo-ready', color: presetName(), hue: Math.round(state.hue), hueRotation: Math.round(rotation()), saturation: state.sat, layout: state.layout, lettering: state.font, ink: inkColor(), dedication: [state.ded1, state.ded2].filter(Boolean), message: [state.msg1, state.msg2].filter(Boolean), logoFile: state.logoName || null, logoColor: state.logoColor, logoScale: state.logoScale }
+        design: state.mode === 'own' ? { idea: $('#idea').value.trim(), referenceFiles: state.refFiles } : state.mode === 'brs' ? { template: 'brushstroke-generic-v26', customizes: 'top flap', flapLayout: state.flap, softBackgroundBehindWords: state.wash, lettering: state.font, ink: inkColor(), message: [state.msg1, state.msg2].filter(Boolean), logoFile: state.logoName || null, logoColor: state.logoColor, logoScale: state.logoScale } : { template: 'custom-template-logo-ready', color: presetName(), hue: Math.round(state.hue), hueRotation: Math.round(rotation()), saturation: state.sat, layout: state.layout, lettering: state.font, ink: inkColor(), dedication: [state.ded1, state.ded2].filter(Boolean), message: [state.msg1, state.msg2].filter(Boolean), logoFile: state.logoName || null, logoColor: state.logoColor, logoScale: state.logoScale }
       };
       const submitBtn = $('button[type=submit]', form);
       submitBtn.disabled = true; submitBtn.textContent = 'Sending';
@@ -787,6 +794,7 @@ if (BL_EMBED) {
     buildPresets(); buildInks(); buildQty(); buildGallery();
     bindWheel(); bindLogo(); bindText(); bindBox(); bindView(); bindOrder(); bindModes(); bindZoom();
     seg('layoutSeg', 'layout'); seg('fontSeg', 'font'); seg('logoColorSeg', 'logoColor'); seg('flapSeg', 'flap');
+    $('#flapWashToggle').addEventListener('change', e => { state.wash = e.target.checked; drawFlap(); });
     $('#flat').style.cssText = 'position:absolute;width:10px;height:10px;opacity:0;pointer-events:none;overflow:hidden;';
     $('#flat').hidden = false;
     try {
