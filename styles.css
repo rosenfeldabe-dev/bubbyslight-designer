@@ -231,3 +231,8 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:url(assets/
   .ready-card img{max-width:200px;margin:0 auto}
   .ready-prices{grid-template-columns:1fr 1fr}
 }
+
+/* Embedded in merkos302.judaica.com */
+.embedded .topbar{display:none}
+.embedded body{position:relative;overflow:hidden}
+.embedded body::before{position:absolute;background:url(assets/brand/watercolor-wallpaper.jpg) top center/100% auto repeat-y}

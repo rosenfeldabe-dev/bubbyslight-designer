@@ -1,3 +1,12 @@
+/* Embedded mode: running inside the merkos302.judaica.com page */
+const BL_EMBED = window.self !== window.top;
+function blModal(open) { if (BL_EMBED) parent.postMessage({ bl: 'modal', open }, '*'); }
+if (BL_EMBED) {
+  document.documentElement.classList.add('embedded');
+  const blPost = () => parent.postMessage({ bl: 'h', h: Math.ceil(document.body.getBoundingClientRect().height) }, '*');
+  window.addEventListener('DOMContentLoaded', () => { blPost(); new ResizeObserver(blPost).observe(document.body); });
+  window.addEventListener('load', blPost);
+}
 /* Bubby's Light kit designer for Merkos302 */
 (() => {
   'use strict';
@@ -563,11 +572,11 @@
     ];
     const dl = $('#doneSum'); dl.innerHTML = '';
     rows.forEach(([k, v]) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; dl.append(dt, dd); });
-    $('#done').hidden = false; $('#doneClose').focus();
+    $('#done').hidden = false; blModal(true); $('#doneClose').focus();
   }
-  $('#doneClose').addEventListener('click', () => { $('#done').hidden = true; });
+  $('#doneClose').addEventListener('click', () => { $('#done').hidden = true; blModal(false); });
   $('#doneDl').addEventListener('click', () => download(`${$('#doneRef').textContent}-print-file`));
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#done').hidden = true; });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#done').hidden) { $('#done').hidden = true; blModal(false); } });
 
   /* ---------- gallery ---------- */
   function buildGallery() {
