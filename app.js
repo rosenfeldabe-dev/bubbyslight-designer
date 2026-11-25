@@ -665,7 +665,7 @@ if (BL_EMBED) {
       const ref = `BL-${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
       const order = {
         ref, createdAt: d.toISOString(), qty, pricePerKit: pricePerKit(qty), estimatedTotal: Math.round(qty * pricePerKit(qty) * 100) / 100,
-        customer: { org: $('#org').value.trim(), name: $('#name').value.trim(), email, phone: $('#phone').value.trim(), address: $('#addr').value.trim(), needBy: $('#needBy').value, notes: $('#notes').value.trim() },
+        customer: { org: $('#org').value.trim(), name: $('#name').value.trim(), email, phone: $('#phone').value.trim(), address: $('#addr').value.trim(), notes: $('#notes').value.trim() },
         option: state.mode, optionName: MODES[state.mode].name,
         design: state.mode === 'own' ? { idea: $('#idea').value.trim(), referenceFiles: state.refFiles } : state.mode === 'brs' ? { template: 'brushstroke-generic-v26', customizes: 'top flap', flapLayout: state.flap, softBackgroundBehindWords: state.wash, lettering: state.font, ink: inkColor(), message: [state.msg1, state.msg2].filter(Boolean), logoFile: state.logoName || null, logoColor: state.logoColor, logoScale: state.logoScale } : { template: 'custom-template-logo-ready', color: presetName(), hue: Math.round(state.hue), hueRotation: Math.round(rotation()), saturation: state.sat, layout: state.layout, lettering: state.font, ink: inkColor(), dedication: [state.ded1, state.ded2].filter(Boolean), message: [state.msg1, state.msg2].filter(Boolean), logoFile: state.logoName || null, logoColor: state.logoColor, logoScale: state.logoScale }
       };
@@ -690,7 +690,7 @@ if (BL_EMBED) {
           return j;
         };
         const c = order.customer;
-        const created = await post({ op: 'create', client_request_id: state.clientRequestId, option: state.mode, qty, email: c.email, org: c.org, name: c.name, phone: c.phone, address: c.address, need_by: c.needBy, notes: c.notes, design: order.design, source: 'designer', page_url: String(document.referrer || location.href).slice(0, 300), website: ($('#website') || {}).value || '', files: uploads.map((u, i) => ({ kind: u.kind, name: u.name, type: u.type, size: blobs[i].size })) });
+        const created = await post({ op: 'create', client_request_id: state.clientRequestId, option: state.mode, qty, email: c.email, org: c.org, name: c.name, phone: c.phone, address: c.address, notes: c.notes, design: order.design, source: 'designer', page_url: String(document.referrer || location.href).slice(0, 300), website: ($('#website') || {}).value || '', files: uploads.map((u, i) => ({ kind: u.kind, name: u.name, type: u.type, size: blobs[i].size })) });
         const done = [];
         for (const up of created.uploads || []) {
           const r = await fetch(up.url, { method: 'PUT', headers: { 'Content-Type': up.type || 'application/octet-stream', 'x-upsert': 'true' }, body: blobs[up.index] });
